@@ -10,6 +10,7 @@ public class Song {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private String spotifyID;
     private String name;
     private String artists; //TODO Model Artist
@@ -17,6 +18,11 @@ public class Song {
     private String camelotKey; //TODO Model CamelotKey
     private int tempo;
     private int acousticness;
+    private int danceability;
+    private int energy;
+    private int valence;
+    @ManyToMany(mappedBy = "songList")
+    private List<Playlist> playlists;
 
     public String getSpotifyID() {
         return spotifyID;
@@ -105,11 +111,4 @@ public class Song {
     public void setPlaylists(List<Playlist> playlists) {
         this.playlists = playlists;
     }
-
-    private int danceability;
-    private int energy;
-    private int valence;
-
-    @ManyToMany(mappedBy = "songList")
-    private List<Playlist> playlists;
 }

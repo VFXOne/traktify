@@ -7,12 +7,14 @@
       </span>
     </div>
   </mat-list-item>
-  @if (loggedIn) {
-    @for(playlist of this.playlists; track playlist) {
-      <mat-list-item role="listitem" routerLinkActive="active" routerLink="playlist/{{playlist.id}}">
-        {{playlist.name}}
-      </mat-list-item>
-    }
-  }
+
+  <div *ngIf="loggedIn; else notLoggedIn">
+    <mat-list-item *ngFor="let playlist of this.playlists" role="listitem" routerLinkActive="active" routerLink="playlist/{{playlist.id}}">
+      {{playlist.name}}
+    </mat-list-item>
+  </div>
+  <ng-template #notLoggedIn>
+    Please login to see your playlists
+  </ng-template>
 
 </mat-list>

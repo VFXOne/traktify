@@ -7,6 +7,7 @@ import {MatIcon} from '@angular/material/icon';
 import {AppStore} from '../../store/store';
 import {Store} from '@ngrx/store';
 import {selectLoggedIn} from '../../store/selectors';
+import {NgForOf, NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-playlist-selector',
@@ -16,7 +17,9 @@ import {selectLoggedIn} from '../../store/selectors';
     MatListItem,
     RouterLinkActive,
     RouterLink,
-    MatIcon
+    MatIcon,
+    NgIf,
+    NgForOf
   ],
   templateUrl: './playlist-selector.component.html',
   styleUrl: './playlist-selector.component.scss'

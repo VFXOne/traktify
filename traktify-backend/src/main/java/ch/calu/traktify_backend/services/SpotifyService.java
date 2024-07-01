@@ -5,6 +5,7 @@ import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.SpotifyHttpManager;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.AuthorizationCodeCredentials;
+import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRefreshRequest;
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest;
 
 import java.io.IOException;
@@ -51,6 +52,20 @@ public class SpotifyService {
                 throw new IOException(e);
             }
         }
+    }
+
+    public static boolean refreshToken() {
+        final AuthorizationCodeRefreshRequest refreshRequest = api.authorizationCodeRefresh()
+                .grant_type("refresh_token")
+                .refresh_token(api.getRefreshToken())
+                .build();
+        try {
+            refreshRequest.execute();
+        }
+        catch (ParseException | SpotifyWebApiException | IOException e) {
+            return false;
+        }
+        return true;
     }
 
     public static void setUserID(String username) {

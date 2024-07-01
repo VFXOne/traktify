@@ -4,7 +4,7 @@ import java.util.List;
 
 public record PlaylistDTO(
         String name,
-        String spotifyID,
+        String id,
         List<SongDTO> songList
 ) {
 }
