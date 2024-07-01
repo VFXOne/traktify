@@ -1,0 +1,11 @@
+<div *ngIf="!loginLoading; else elseLoading">
+  <button mat-flat-button (click)="login()">Login</button>
+</div>
+
+<ng-template #elseLoading>
+  <mat-spinner></mat-spinner>
+</ng-template>
+
+<div>
+  {{return}}
+</div>

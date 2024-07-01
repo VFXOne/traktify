@@ -1,0 +1,25 @@
+<div class="horizontal-layout">
+  <mat-expansion-panel class="playlist-panel" (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-slide-toggle checked (click)="toggleSelect($event, toggle)" #toggle></mat-slide-toggle>
+        <div style="margin-left: 14px;">
+          {{ group.name }} Playlists
+        </div>
+      </mat-panel-title>
+      <mat-panel-description class="panel-description" *ngIf="panelOpenState()">
+        <button mat-raised-button (click)="selectAll($event)">Select All</button>
+        <button mat-raised-button (click)="deselectAll($event)">Deselect All</button>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <mat-chip-listbox multiple #chiplist>
+      @for (playlist of group.playlistList; track playlist) {
+        <mat-chip-option [value]="playlist.id" (selectionChange)="chipSelected($event)">
+          {{playlist.name}}
+        </mat-chip-option>
+      }
+    </mat-chip-listbox>
+
+  </mat-expansion-panel>
+</div>

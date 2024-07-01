@@ -1,0 +1,50 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title-group style="display: block">
+      <div class="song-title-header">
+        <mat-card-title style="padding: 0 10px">{{ song.name }}</mat-card-title>
+        <mat-card-subtitle>{{ song.artists | artistsDisplay }}</mat-card-subtitle>
+      </div>
+    </mat-card-title-group>
+  </mat-card-header>
+
+  <span style="margin-bottom: 30px"></span>
+
+  <mat-card-content>
+    <mat-grid-list cols="5" rowHeight="50px">
+      <!-- BPM display -->
+      <mat-grid-tile [colspan]="1" [rowspan]="1">
+        <div class="side-value-display">
+          BPM : {{ song.tempo }}
+        </div>
+      </mat-grid-tile>
+
+      <!-- Energy display -->
+      <mat-grid-tile [colspan]="2" [rowspan]="3">
+        <app-property-spinner [size]="70" [value]="song.energy" [label]="'Energy'"></app-property-spinner>
+      </mat-grid-tile>
+
+      <!-- Danceability display -->
+      <mat-grid-tile [colspan]="2" [rowspan]="3">
+        <app-property-spinner [size]="70" [value]="song.danceability" [label]="'Danceability'"></app-property-spinner>
+      </mat-grid-tile>
+
+      <!-- Key display -->
+      <mat-grid-tile [colspan]="1" [rowspan]="1">
+        <div class="side-value-display">
+          Key : {{ song.key | keyDisplay }}
+        </div>
+      </mat-grid-tile>
+
+      <!-- Duration display -->
+      <mat-grid-tile [colspan]="1" [rowspan]="1">
+        <div class="side-value-display">
+          Duration : {{ song.duration_ms | duration }}
+        </div>
+      </mat-grid-tile>
+
+    </mat-grid-list>
+
+    <app-match-selector [song]="song"></app-match-selector>
+  </mat-card-content>
+</mat-card>

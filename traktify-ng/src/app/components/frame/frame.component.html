@@ -1,0 +1,17 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button aria-label="menu" (click)="drawer.toggle()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <h1>Traktify</h1>
+</mat-toolbar>
+
+<mat-drawer-container autosize="true" [hasBackdrop]="false" class="frame-container">
+  <mat-drawer #drawer mode="side" class="nav-drawer">
+    <app-playlist-selector></app-playlist-selector>
+  </mat-drawer>
+
+  <mat-drawer-content>
+    <router-outlet></router-outlet>
+  </mat-drawer-content>
+
+</mat-drawer-container>

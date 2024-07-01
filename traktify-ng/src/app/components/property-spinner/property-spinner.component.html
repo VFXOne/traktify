@@ -1,0 +1,11 @@
+<div>
+  <mat-progress-spinner [color]="'primary'" [mode]="'determinate'" [value]="value" [diameter]="size"></mat-progress-spinner>
+  <div class="inside-spinner" [ngStyle]="{left: size/2 - 12 + 'px', top: -size/2 - 13 + 'px'}">
+    {{ value || "-" }}
+  </div>
+  <h6 class="text-below">
+    {{label}}
+  </h6>
+
+</div>
+
