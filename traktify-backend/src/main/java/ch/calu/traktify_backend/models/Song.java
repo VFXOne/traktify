@@ -8,7 +8,7 @@ import java.util.List;
 @Table
 public class Song {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String spotifyID;
@@ -23,6 +23,10 @@ public class Song {
     private int valence;
     @ManyToMany(mappedBy = "songList")
     private List<Playlist> playlists;
+
+    public void setID(Long id) {
+        this.id = id;
+    }
 
     public String getSpotifyID() {
         return spotifyID;

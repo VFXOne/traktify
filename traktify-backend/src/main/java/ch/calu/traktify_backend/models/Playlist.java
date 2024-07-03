@@ -15,7 +15,7 @@ public class Playlist {
     private String spotifyID;
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
-            name = "song",
+            name = "playlist_songs",
             joinColumns = @JoinColumn(name = "song_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "playlist_id", referencedColumnName = "id")
     )
