@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Song} from '../../models/song.model';
 import {MatDrawer} from '@angular/material/sidenav';
 import {MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle, MatCardTitleGroup} from '@angular/material/card';
@@ -7,8 +7,9 @@ import {PropertySpinnerComponent} from '../property-spinner/property-spinner.com
 import {MatGridList, MatGridTile} from '@angular/material/grid-list';
 import {MatDivider} from '@angular/material/divider';
 import {MatchSelectorComponent} from '../match-selector/match-selector.component';
-import {KeyDisplayPipe} from '../../pipes/key-display.pipe';
 import {DurationPipe} from '../../pipes/duration.pipe';
+import {NgIf} from '@angular/common';
+import {SongService} from '../../services/song.service';
 
 @Component({
   selector: 'app-song-detail[song]',
@@ -27,16 +28,34 @@ import {DurationPipe} from '../../pipes/duration.pipe';
     MatGridTile,
     MatDivider,
     MatchSelectorComponent,
-    KeyDisplayPipe,
-    DurationPipe
+    DurationPipe,
+    NgIf
   ],
   templateUrl: './song-detail.component.html',
   styleUrl: './song-detail.component.scss'
 })
-export class SongDetailComponent {
+export class SongDetailComponent implements OnInit, OnChanges {
   @Input({required: true}) song!: Song;
 
-  constructor() {
+  constructor(private songservice: SongService) {
+  }
+
+  ngOnInit(): void {
+    this.fillAudioInfo();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    this.fillAudioInfo();
+  }
+
+  fillAudioInfo(): void {
+    if (!this.song.audioInfo) {
+      this.songservice.getSongWithAudioInfo(this.song.id).subscribe(
+        song => {
+          this.song.audioInfo = song.audioInfo;
+        }
+      )
+    }
   }
 
 }

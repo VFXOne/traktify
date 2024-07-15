@@ -8,6 +8,7 @@ import {AppStore} from '../../store/store';
 import {Store} from '@ngrx/store';
 import {selectLoggedIn} from '../../store/selectors';
 import {NgForOf, NgIf} from '@angular/common';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-playlist-selector',
@@ -19,7 +20,8 @@ import {NgForOf, NgIf} from '@angular/common';
     RouterLink,
     MatIcon,
     NgIf,
-    NgForOf
+    NgForOf,
+    MatProgressSpinner
   ],
   templateUrl: './playlist-selector.component.html',
   styleUrl: './playlist-selector.component.scss'
@@ -28,6 +30,7 @@ export class PlaylistSelectorComponent {
 
   playlists: Playlist[] | undefined;
   loggedIn: boolean = false;
+  playlistsLoaded: boolean = true;
 
   constructor(private store: Store<AppStore>, private playlistService: PlaylistService) {
     this.store.select(selectLoggedIn).subscribe(loggedIn => {
@@ -40,8 +43,10 @@ export class PlaylistSelectorComponent {
   }
 
   loadPlaylists() {
+    this.playlistsLoaded = false;
     this.playlistService.getPlaylists().subscribe(playlists => {
       this.playlists = playlists;
+      this.playlistsLoaded = true;
     });
   }
 

@@ -11,28 +11,28 @@
   <span style="margin-bottom: 30px"></span>
 
   <mat-card-content>
-    <mat-grid-list cols="5" rowHeight="50px">
+    <mat-grid-list cols="5" rowHeight="50px" *ngIf="song.audioInfo">
       <!-- BPM display -->
       <mat-grid-tile [colspan]="1" [rowspan]="1">
         <div class="side-value-display">
-          BPM : {{ song.tempo }}
+          BPM : {{ song.audioInfo.tempo }}
         </div>
       </mat-grid-tile>
 
       <!-- Energy display -->
       <mat-grid-tile [colspan]="2" [rowspan]="3">
-        <app-property-spinner [size]="70" [value]="song.energy" [label]="'Energy'"></app-property-spinner>
+        <app-property-spinner [size]="70" [value]="song.audioInfo.energy" [label]="'Energy'"></app-property-spinner>
       </mat-grid-tile>
 
       <!-- Danceability display -->
       <mat-grid-tile [colspan]="2" [rowspan]="3">
-        <app-property-spinner [size]="70" [value]="song.danceability" [label]="'Danceability'"></app-property-spinner>
+        <app-property-spinner [size]="70" [value]="song.audioInfo.danceability" [label]="'Danceability'"></app-property-spinner>
       </mat-grid-tile>
 
       <!-- Key display -->
       <mat-grid-tile [colspan]="1" [rowspan]="1">
         <div class="side-value-display">
-          Key : {{ song.key | keyDisplay }}
+          Key : {{ song.audioInfo.camelotKey }}
         </div>
       </mat-grid-tile>
 

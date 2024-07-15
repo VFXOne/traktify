@@ -13,17 +13,15 @@ export const SONGLIST: Song[] = [
         name: 'MitiS'
       }
     ],
-    acousticness: 0,
-    danceability: 46,
-    duration_ms: 345000,
-    energy: 79,
-    key: {
-      number: 6,
-      letter: 'B',
-      major: true,
+    audioInfo: {
+      acousticness: 0,
+      danceability: 46,
+      camelotKey: '6B',
+      energy: 79,
+      valence: 0,
+      tempo: 142
     },
-    tempo: 142,
-    valence: 0
+    duration_ms: 345000,
   },
   {
     index: 2,
@@ -34,16 +32,14 @@ export const SONGLIST: Song[] = [
         name: 'Twenty One Pilots'
       }
     ],
-    acousticness: 1,
-    danceability: 36,
-    duration_ms: 236000,
-    energy: 89,
-    key: {
-      number: 4,
-      letter: 'B',
-      major: false
+    audioInfo: {
+      acousticness: 1,
+      danceability: 36,
+      camelotKey: '4B',
+      energy: 89,
+      valence: 0,
+      tempo: 95
     },
-    tempo: 95,
-    valence: 0
+    duration_ms: 236000,
   }
 ]
