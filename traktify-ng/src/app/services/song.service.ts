@@ -46,4 +46,13 @@ export class SongService {
     });
   }
 
+  getSongWithAudioInfo(id: string): Observable<Song> {
+    return this.http.get<Song>(this.url + "songWithAudioInfo/" + id).pipe(
+      catchError((error) => {
+        console.log("[Song service] unable to get audio info for song id " + id, error);
+        return throwError(() => {return new Error('An error occurred with the local server:', error)});
+      })
+    )
+  }
+
 }

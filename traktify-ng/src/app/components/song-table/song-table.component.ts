@@ -11,7 +11,7 @@ import {MatDrawer, MatDrawerContainer, MatDrawerContent} from '@angular/material
 import {DurationPipe} from '../../pipes/duration.pipe';
 import {MatSort, MatSortHeader, MatSortModule, Sort} from '@angular/material/sort';
 import {NgIf} from '@angular/common';
-import {KeyDisplayPipe} from '../../pipes/key-display.pipe';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-song-table',
@@ -42,7 +42,7 @@ import {KeyDisplayPipe} from '../../pipes/key-display.pipe';
     MatSortModule,
     MatSortHeader,
     NgIf,
-    KeyDisplayPipe
+    MatProgressSpinner
   ],
   templateUrl: './song-table.component.html',
   styleUrl: './song-table.component.scss'
@@ -57,6 +57,7 @@ export class SongTableComponent implements OnInit {
   songs: Song[] = [];
   sortedSongs: Song[] = [];
   selectedSong: Song | undefined;
+  songsLoaded: boolean = true;
 
   constructor(private route: ActivatedRoute, private songService: SongService) {
   }
@@ -110,9 +111,9 @@ export class SongTableComponent implements OnInit {
           case 'artists':
             return this.compare(a.artists[0].name, b.artists[0].name, isAsc);
           case 'key':
-            return this.compare(a.key.number, b.key.number, isAsc);
+            return this.compare(a.audioInfo?.camelotKey, b.audioInfo?.camelotKey, isAsc);
           case 'bpm':
-            return this.compare(a.tempo, b.tempo, isAsc);
+            return this.compare(a.audioInfo?.tempo, b.audioInfo?.tempo, isAsc);
           case 'duration':
             return this.compare(a.duration_ms, b.duration_ms, isAsc);
           default:

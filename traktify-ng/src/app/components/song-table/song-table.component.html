@@ -1,43 +1,44 @@
 <mat-drawer-container class="container">
   <mat-drawer-content>
-    <mat-table #table [dataSource]="songs" cdkDropList (cdkDropListDropped)="drop($event)" cdkDropListData="songs" matSort (matSortChange)="sortTable($event)">
+    <mat-table #table [dataSource]="songs" cdkDropList (cdkDropListDropped)="drop($event)" cdkDropListData="songs"
+               matSort (matSortChange)="sortTable($event)">
       <!-- Index column -->
       <ng-container matColumnDef="index" sticky>
-        <mat-header-cell *matHeaderCellDef mat-sort-header> Index </mat-header-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header> Index</mat-header-cell>
         <mat-cell *matCellDef="let song">
           <mat-icon class="table-drag-cursor">reorder</mat-icon>
-          <span>{{song.index}}</span>
+          <span>{{ song.index }}</span>
         </mat-cell>
       </ng-container>
 
       <!-- Name column -->
       <ng-container matColumnDef="name">
-        <mat-header-cell *matHeaderCellDef mat-sort-header> Name </mat-header-cell>
-        <mat-cell *matCellDef="let song"> {{song.name}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header> Name</mat-header-cell>
+        <mat-cell *matCellDef="let song"> {{ song.name }}</mat-cell>
       </ng-container>
 
       <!-- Artists column -->
       <ng-container matColumnDef="artists">
-        <mat-header-cell *matHeaderCellDef mat-sort-header> Artists </mat-header-cell>
-        <mat-cell *matCellDef="let song"> {{song.artists | artistsDisplay}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header> Artists</mat-header-cell>
+        <mat-cell *matCellDef="let song"> {{ song.artists | artistsDisplay }}</mat-cell>
       </ng-container>
 
       <!-- Key column -->
       <ng-container matColumnDef="key">
-        <mat-header-cell *matHeaderCellDef mat-sort-header> Key </mat-header-cell>
-        <mat-cell *matCellDef="let song"> {{song.key | keyDisplay}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header> Key</mat-header-cell>
+        <mat-cell *matCellDef="let song"> {{ song.audioInfo?.camelotKey || "-" }}</mat-cell>
       </ng-container>
 
       <!-- BPM column -->
       <ng-container matColumnDef="bpm">
-        <mat-header-cell *matHeaderCellDef mat-sort-header> BPM </mat-header-cell>
-        <mat-cell *matCellDef="let song"> {{song.tempo}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header> BPM</mat-header-cell>
+        <mat-cell *matCellDef="let song"> {{ song.audioInfo?.tempo || "-" }}</mat-cell>
       </ng-container>
 
       <!-- Duration column -->
       <ng-container matColumnDef="duration">
-        <mat-header-cell *matHeaderCellDef mat-sort-header> Duration </mat-header-cell>
-        <mat-cell *matCellDef="let song"> {{song.duration_ms | duration}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header> Duration</mat-header-cell>
+        <mat-cell *matCellDef="let song"> {{ song.duration_ms | duration }}</mat-cell>
       </ng-container>
 
       <mat-header-row *matHeaderRowDef="displayColumns"></mat-header-row>

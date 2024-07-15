@@ -16,7 +16,6 @@ import {MatchService} from '../../services/match.service';
 import {MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatRow, MatRowDef, MatTable} from '@angular/material/table';
 import {MatSort, MatSortHeader, Sort} from '@angular/material/sort';
 import {ArtistsDisplayPipe} from '../../pipes/artists-display.pipe';
-import {KeyDisplayPipe} from '../../pipes/key-display.pipe';
 import {DurationPipe} from '../../pipes/duration.pipe';
 
 @Component({
@@ -48,7 +47,6 @@ import {DurationPipe} from '../../pipes/duration.pipe';
     MatCellDef,
     MatCell,
     ArtistsDisplayPipe,
-    KeyDisplayPipe,
     DurationPipe,
     MatHeaderRow,
     MatRow,

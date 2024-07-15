@@ -1,15 +1,13 @@
 package ch.calu.traktify_backend.models.dto;
 
+import java.util.List;
+
 public record SongDTO(
-        String spotifyID,
+        int index,
+        String id,
         String name,
-        String artists,
+        List<ArtistDTO> artists,
         int duration_ms,
-        String camelotKey,
-        int tempo,
-        int acousticness,
-        int danceability,
-        int energy,
-        int valence
+        AudioInfoDTO audioInfo
 ) {
 }

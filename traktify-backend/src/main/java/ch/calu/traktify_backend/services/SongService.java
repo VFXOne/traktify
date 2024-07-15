@@ -20,8 +20,22 @@ public class SongService {
     @Autowired
     SongRepository songRepository;
 
-    public Song getSongFromPlaylist(Long id) {
-        return songRepository.findById(id).orElse(null);
+    @Autowired
+    AudioInfoService audioInfoService;
+
+    public Song getSongFromPlaylist(String id) {
+        return songRepository.findBySpotifyID(id).orElse(null);
+    }
+
+    public Song getSongWithAudioInfo(String id) {
+        Song song = songRepository.findBySpotifyID(id).orElseThrow();
+
+        if (song.getAudioInfo() == null) {
+            song = audioInfoService.updateAudioInfo(song);
+            songRepository.save(song);
+        }
+
+        return song;
     }
 
     public void fillPlaylistWithSongsFromSpotify(Playlist playlistToFill) {
