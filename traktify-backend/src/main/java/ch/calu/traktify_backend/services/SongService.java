@@ -27,17 +27,6 @@ public class SongService {
         return songRepository.findBySpotifyID(id).orElse(null);
     }
 
-    public Song getSongWithAudioInfo(String id) {
-        Song song = songRepository.findBySpotifyID(id).orElseThrow();
-
-        if (song.getAudioInfo() == null) {
-            song = audioInfoService.updateAudioInfo(song);
-            songRepository.save(song);
-        }
-
-        return song;
-    }
-
     public void fillPlaylistWithSongsFromSpotify(Playlist playlistToFill) {
         List<Song> songList = new ArrayList<>();
 
@@ -46,21 +35,23 @@ public class SongService {
             IPlaylistItem item = playlistTrack.getTrack();
 
             if (item instanceof Track) {
-                Song song = new Song();
-                //song.setID(songRepository.getNextValMySequence());
-                song.setSpotifyID(item.getId());
-                song.setName(item.getName());
-                song.setArtists(Arrays.stream(((Track) item).getArtists()).map(ArtistSimplified::getName).collect(Collectors.joining(", "))); //TODO map artists
-                song.setPlaylists(List.of(playlistToFill));
-                song.setDuration_ms(item.getDurationMs());
-
+                Song song = newSongFromSpotifyTrack((Track) item, playlistToFill);
                 songList.add(song);
             }
 
         }
 
         playlistToFill.setSongList(songList.isEmpty() ? null : songList);
+    }
 
-        //songRepository.saveAll(songList);
+    private Song newSongFromSpotifyTrack(Track track, Playlist inPlaylist) {
+        Song song = new Song();
+        song.setSpotifyID(track.getId());
+        song.setName(track.getName());
+        song.setArtists(Arrays.stream(track.getArtists()).map(ArtistSimplified::getName).collect(Collectors.joining(", "))); //TODO map artists
+        song.setPlaylists(List.of(inPlaylist));
+        song.setDuration_ms(track.getDurationMs());
+
+        return audioInfoService.updateAudioInfo(song);
     }
 }

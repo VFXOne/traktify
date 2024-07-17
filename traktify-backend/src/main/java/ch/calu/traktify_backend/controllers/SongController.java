@@ -34,11 +34,4 @@ public class SongController {
 
         return DTOMapper.INSTANCE.toSongDTO(songFound);
     }
-
-    @GetMapping("songWithAudioInfo/{id}")
-    public SongDTO getSongWithAudioInfo(@PathVariable String id) {
-        Song songFound = songService.getSongWithAudioInfo(id);
-
-        return DTOMapper.INSTANCE.toSongDTO(songFound);
-    }
 }
