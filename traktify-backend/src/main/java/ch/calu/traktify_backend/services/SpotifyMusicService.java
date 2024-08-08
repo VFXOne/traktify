@@ -8,6 +8,7 @@ import ch.calu.traktify_backend.services.utils.RetryRequestHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.enums.Modality;
+import se.michaelthelin.spotify.exceptions.detailed.TooManyRequestsException;
 import se.michaelthelin.spotify.exceptions.detailed.UnauthorizedException;
 import se.michaelthelin.spotify.model_objects.IPlaylistItem;
 import se.michaelthelin.spotify.model_objects.specification.*;
@@ -105,8 +106,16 @@ public class SpotifyMusicService {
         RetryRequestHelper.callWithRetry(
                 retryProvider,
                 (exception) -> {
-                    if (exception.getClass().equals(UnauthorizedException.class)) {
+                    if (exception instanceof UnauthorizedException) {
                         spotifyApiService.refreshToken();
+                    }
+                    else if (exception instanceof TooManyRequestsException tooMany) {
+                        int wait = tooMany.getRetryAfter();
+                        try {
+                            Thread.sleep(wait * 1000L);
+                        }
+                        catch (InterruptedException ignored) {
+                        }
                     }
                 }
         );

@@ -20,6 +20,7 @@ public class RetryRequestHelper {
             try {
                 nbRetry--;
                 provider.execute();
+                break;
             }
             catch (Exception e) {
                 if (nbRetry >= 0) {

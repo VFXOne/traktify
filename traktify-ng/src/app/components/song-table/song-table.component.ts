@@ -57,7 +57,7 @@ export class SongTableComponent implements OnInit {
   songs: Song[] = [];
   sortedSongs: Song[] = [];
   selectedSong: Song | undefined;
-  songsLoaded: boolean = true;
+  songsLoaded: boolean = false; //TODO trouver comment afficher le spinner
 
   constructor(private route: ActivatedRoute, private songService: SongService) {
   }
@@ -65,8 +65,12 @@ export class SongTableComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       const id = params['id'];
+      this.songsLoaded = false;
+      console.log("load songs");
       this.songService.getSongsFromPlaylist(id).subscribe(songs => {
         this.songs = songs;
+        this.songsLoaded = true;
+        console.log("songs loaded");
         this.table.renderRows();
       });
     });

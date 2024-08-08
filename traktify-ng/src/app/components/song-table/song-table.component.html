@@ -42,8 +42,13 @@
       </ng-container>
 
       <mat-header-row *matHeaderRowDef="displayColumns"></mat-header-row>
+
       <mat-row *matRowDef="let row; columns: displayColumns;" cdkDrag [cdkDragData]="row"
                routerLinkActive="active" (click)="selectSongToDisplay(row.id)"></mat-row>
+
+      <div *ngIf="!songsLoaded">
+        <mat-spinner></mat-spinner>
+      </div>
 
     </mat-table>
   </mat-drawer-content>
