@@ -7,9 +7,7 @@ import ch.calu.traktify_backend.models.dto.PlaylistDTO;
 import ch.calu.traktify_backend.repositories.PlaylistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,6 +18,8 @@ public class PlaylistService {
 
     @Autowired
     SongService songService;
+    @Autowired
+    private SpotifyMusicService spotifyMusicService;
 
     public void syncPlaylists() {
         List<Playlist> storedPlaylists = playlistRepository.findAll();
@@ -54,19 +54,6 @@ public class PlaylistService {
     }
 
     private List<Playlist> getPlaylistsFromSpotify() {
-        List<Playlist> playlistList = new ArrayList<>();
-
-        List<PlaylistSimplified> list = PagingRequestHelper.getAllElements((offset) -> SpotifyService.getApi().getListOfCurrentUsersPlaylists().offset(offset).build());
-        for (final PlaylistSimplified spotifyPlaylist : list) {
-            if (spotifyPlaylist.getOwner().getId().equals(SpotifyService.getUserID())) {
-                Playlist playlist = new Playlist();
-                playlist.setSpotifyID(spotifyPlaylist.getId());
-                playlist.setName(spotifyPlaylist.getName());
-
-                playlistList.add(playlist);
-            }
-        }
-
-        return playlistList;
+        return spotifyMusicService.getSpotifyPlaylists();
     }
 }
