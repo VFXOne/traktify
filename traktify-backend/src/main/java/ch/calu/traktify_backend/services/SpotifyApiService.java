@@ -1,6 +1,5 @@
 package ch.calu.traktify_backend.services;
 
-import ch.calu.traktify_backend.controllers.AuthController;
 import ch.calu.traktify_backend.models.Settings;
 import ch.calu.traktify_backend.repositories.SettingsRepository;
 import org.apache.hc.core5.http.ParseException;
@@ -28,6 +27,7 @@ public class SpotifyApiService {
 
     private boolean isLoggedIn = false;
 
+    private static final String ALREADY_LOGGED_IN = "LOGGED_IN";
     private static final String redirectURI = "http://localhost:8082/backend/get-user-code";
     protected SpotifyApi api = null;
 
@@ -63,7 +63,7 @@ public class SpotifyApiService {
 
             isLoggedIn = true;
 
-            return AuthController.homeURI;
+            return ALREADY_LOGGED_IN;
         }
     }
 

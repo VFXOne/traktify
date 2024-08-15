@@ -11,7 +11,6 @@ export class LoginEffects {
     mergeMap(() =>
       this.loginService.login().pipe(
         map(username => {
-          console.log(username);
           return loginSuccess({username});
         }),
         catchError(error => of(loginFailure({error})))

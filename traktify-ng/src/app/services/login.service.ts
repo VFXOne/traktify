@@ -19,17 +19,21 @@ export class LoginService {
       return new Observable(subscriber => {
         this.http.get<boolean>(this.url + 'isLoggedIn').subscribe({
           next: (isLoggedIn) => {
-            console.log('IsLoggedIn: ', isLoggedIn);
             if (isLoggedIn) {
-              this.http.get(this.url + 'get-username', {responseType: 'text'}).subscribe(
+              this.getUsername().subscribe(
                 username => subscriber.next(username)
               );
             } else {
               this.http.get(this.url + 'login', {responseType: 'text'}).subscribe({
                 next: (spotifyLoginUrl) => {
-                  console.log('server response: ' + spotifyLoginUrl);
-                  window.location.replace(spotifyLoginUrl);
-                  subscriber.error(new Error('Please follow the spotify instructions'));
+                  if (this.isSpotifyLoginURL(spotifyLoginUrl)) {
+                    window.location.replace(spotifyLoginUrl);
+                    subscriber.error(new Error('Please follow the spotify instructions'));
+                  } else {
+                    this.getUsername().subscribe(
+                      username => subscriber.next(username)
+                    );
+                  }
                 },
                 error: (error) => subscriber.error(error)
               });
@@ -39,5 +43,13 @@ export class LoginService {
         });
       });
     }
+  }
+
+  private getUsername(): Observable<any> {
+    return this.http.get(this.url + 'get-username', {responseType: 'text'});
+  }
+
+  private isSpotifyLoginURL(url: string): boolean {
+    return url != null && url.length != 0 && url != "LOGGED_IN";
   }
 }
