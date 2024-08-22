@@ -45,6 +45,10 @@ export class LoginService {
     }
   }
 
+  isLoggedIn(): Observable<boolean> {
+    return this.http.get<boolean>(this.url + 'isLoggedIn');
+  }
+
   private getUsername(): Observable<any> {
     return this.http.get(this.url + 'get-username', {responseType: 'text'});
   }
