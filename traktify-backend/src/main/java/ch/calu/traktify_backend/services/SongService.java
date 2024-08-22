@@ -5,15 +5,8 @@ import ch.calu.traktify_backend.models.Song;
 import ch.calu.traktify_backend.repositories.SongRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import se.michaelthelin.spotify.model_objects.IPlaylistItem;
-import se.michaelthelin.spotify.model_objects.specification.ArtistSimplified;
-import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack;
-import se.michaelthelin.spotify.model_objects.specification.Track;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SongService {
@@ -23,35 +16,21 @@ public class SongService {
     @Autowired
     AudioInfoService audioInfoService;
 
+    @Autowired
+    private SpotifyMusicService spotifyMusicService;
+
     public Song getSongFromPlaylist(String id) {
         return songRepository.findBySpotifyID(id).orElse(null);
     }
 
     public void fillPlaylistWithSongsFromSpotify(Playlist playlistToFill) {
-        List<Song> songList = new ArrayList<>();
+        List<Song> songList = spotifyMusicService.getSongsFromSpotifyPlaylist(playlistToFill.getSpotifyID());
 
-        List<PlaylistTrack> allTracks = PagingRequestHelper.getAllElements((offset) -> SpotifyService.getApi().getPlaylistsItems(playlistToFill.getSpotifyID()).offset(offset).build());
-        for (PlaylistTrack playlistTrack : allTracks) {
-            IPlaylistItem item = playlistTrack.getTrack();
-
-            if (item instanceof Track) {
-                Song song = newSongFromSpotifyTrack((Track) item, playlistToFill);
-                songList.add(song);
-            }
-
+        for (Song song : songList) {
+            song.setPlaylists(List.of(playlistToFill));
+            audioInfoService.updateAudioInfo(song);
         }
 
         playlistToFill.setSongList(songList.isEmpty() ? null : songList);
-    }
-
-    private Song newSongFromSpotifyTrack(Track track, Playlist inPlaylist) {
-        Song song = new Song();
-        song.setSpotifyID(track.getId());
-        song.setName(track.getName());
-        song.setArtists(Arrays.stream(track.getArtists()).map(ArtistSimplified::getName).collect(Collectors.joining(", "))); //TODO map artists
-        song.setPlaylists(List.of(inPlaylist));
-        song.setDuration_ms(track.getDurationMs());
-
-        return audioInfoService.updateAudioInfo(song);
     }
 }

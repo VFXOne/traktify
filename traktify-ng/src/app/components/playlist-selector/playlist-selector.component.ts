@@ -35,7 +35,6 @@ export class PlaylistSelectorComponent {
   constructor(private store: Store<AppStore>, private playlistService: PlaylistService) {
     this.store.select(selectLoggedIn).subscribe(loggedIn => {
       this.loggedIn = loggedIn;
-      console.log('[playlist service] loggedIn: ' + this.loggedIn);
       if (this.loggedIn) {
         this.loadPlaylists();
       }

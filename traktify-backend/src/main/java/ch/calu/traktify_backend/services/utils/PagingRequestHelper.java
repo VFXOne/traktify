@@ -1,4 +1,4 @@
-package ch.calu.traktify_backend.services;
+package ch.calu.traktify_backend.services.utils;
 
 import org.apache.hc.core5.http.ParseException;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;

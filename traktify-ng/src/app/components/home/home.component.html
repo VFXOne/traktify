@@ -1,11 +1,18 @@
-<div *ngIf="!loginLoading; else elseLoading">
-  <button mat-flat-button (click)="login()">Login</button>
+<div class="center-div">
+  <div *ngIf="isLoggedIn; else elseLoggedOut">
+    <h2>
+      Welcome home!
+    </h2>
+  </div>
+
+  <ng-template #elseLoggedOut>
+    <div *ngIf="!loginLoading; else elseLoading">
+      <button mat-flat-button class="big-button" (click)="login()">Login</button>
+    </div>
+
+    <ng-template #elseLoading>
+      <mat-spinner></mat-spinner>
+    </ng-template>
+  </ng-template>
 </div>
 
-<ng-template #elseLoading>
-  <mat-spinner></mat-spinner>
-</ng-template>
-
-<div>
-  {{return}}
-</div>
