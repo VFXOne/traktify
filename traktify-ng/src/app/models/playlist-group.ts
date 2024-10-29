@@ -1,6 +1,6 @@
 import {Playlist} from './playlist.model';
 
-export interface GroupFilter {
+export interface PlaylistGroup {
   name: string,
   playlistList: Playlist[]
 }

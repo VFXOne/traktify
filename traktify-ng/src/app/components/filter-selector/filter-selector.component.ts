@@ -1,14 +1,15 @@
-import {AfterViewInit, Component, Input, signal, ViewChild} from '@angular/core';
-import {GroupFilter} from '../../models/group-filter';
-import {MatChipListbox, MatChipOption, MatChipSelectionChange} from '@angular/material/chips';
-import {MatExpansionPanel, MatExpansionPanelDescription, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {MatChipListbox, MatChipOption} from '@angular/material/chips';
+import {MatAccordion, MatExpansionPanel, MatExpansionPanelDescription, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
-import {NgIf} from '@angular/common';
+import {NgForOf, NgIf} from '@angular/common';
 import {MatButton} from '@angular/material/button';
 import {FormArray, FormControl, FormGroup, Validators} from '@angular/forms';
+import {GroupService} from '../../services/group.service';
+import {Playlist} from '../../models/playlist.model';
 
 @Component({
-  selector: 'app-filter-selector[group]',
+  selector: 'app-filter-selector[playlistForm]',
   standalone: true,
   imports: [
     MatChipListbox,
@@ -19,51 +20,88 @@ import {FormArray, FormControl, FormGroup, Validators} from '@angular/forms';
     MatExpansionPanelDescription,
     MatSlideToggle,
     NgIf,
-    MatButton
+    MatButton,
+    MatAccordion,
+    NgForOf
   ],
   templateUrl: './filter-selector.component.html',
   styleUrl: './filter-selector.component.scss'
 })
-export class FilterSelectorComponent implements AfterViewInit {
-  @Input({required: true}) group!: GroupFilter;
+export class FilterSelectorComponent implements OnInit {
   @Input({required: true}) playlistForm!: FormGroup;
-  readonly panelOpenState = signal(false);
+  groupList: SelectablePlaylistGroup[] = [];
 
   @ViewChild('chiplist', {static: true}) chipList!: MatChipListbox;
 
-  constructor() {
+  constructor(private groupService: GroupService) {
   }
 
-  ngAfterViewInit() {
-    this.selectAll(null);
+  ngOnInit(): void {
+    this.groupService.getGroups().subscribe(groups => {
+      this.groupList = groups.map(g => {
+        let selectablePlaylists: SelectablePlaylist[] = g.playlistList.map(p => {
+          return {
+            selected: true,
+            playlist: p
+          };
+        });
+        return {
+          selected: true,
+          opened: false,
+          name: g.name,
+          playlists: selectablePlaylists
+        };
+      });
+      this.groupList.forEach(g => g.playlists.forEach(p => {
+        this.addSelectedPlaylistToForm(p);
+      }));
+    });
   }
 
-  selectAll(event: any) {
+  selectAllPlaylists(event: any, group: SelectablePlaylistGroup) {
     event?.stopPropagation();
-    this.chipList._chips?.toArray().forEach(item => item.select());
+
+    group.playlists.forEach(p => {
+      p.selected = true;
+      if (group.selected) {
+        this.addSelectedPlaylistToForm(p);
+      }
+    });
   }
 
-  deselectAll(event: any) {
+  deselectAllPlaylists(event: any, group: SelectablePlaylistGroup) {
     event?.stopPropagation();
-    this.chipList._chips?.toArray().forEach(item => item.deselect());
+
+    group.playlists.forEach(p => {
+      p.selected = false;
+      this.deleteSelectedPlaylistFromForm(p);
+    });
   }
 
-  toggleSelect(event: any, slider: MatSlideToggle) {
+  toggleGroup(event: any, group: SelectablePlaylistGroup) {
     event?.stopPropagation();
 
-    let selectedChips = this.chipList.selected as MatChipOption[];
-    if (slider.checked) {
-      selectedChips.forEach(chip => this.addID(chip.value));
+    group.selected = !group.selected;
+    group.playlists.forEach(p => {
+      if (group.selected) {
+        if (p.selected) {
+          this.addSelectedPlaylistToForm(p);
+        }
+      } else {
+        this.deleteSelectedPlaylistFromForm(p);
+      }
+    });
+  }
+
+  togglePlaylist(group: SelectablePlaylistGroup, playlist: SelectablePlaylist) {
+    playlist.selected = !playlist.selected;
+
+    if (playlist.selected) {
+      if (group.selected) {
+        this.addSelectedPlaylistToForm(playlist);
+      }
     } else {
-      selectedChips.forEach(chip => this.removeID(chip.value));
-    }
-  }
-
-  chipSelected(event: MatChipSelectionChange) {
-    if (event.selected) {
-      this.addID(event.source.value);
-    } else {
-      this.removeID(event.source.value);
+      this.deleteSelectedPlaylistFromForm(playlist);
     }
   }
 
@@ -71,18 +109,31 @@ export class FilterSelectorComponent implements AfterViewInit {
     return (this.playlistForm.get('playlists') as FormArray);
   }
 
-  addID(ID: string) {
-    this.playlists.push(
-      new FormGroup({
-        id: new FormControl(ID, Validators.required),
-      })
-    );
+  addSelectedPlaylistToForm(playlist: SelectablePlaylist) {
+    if (!this.playlists.controls.find(c => c.value.playlistID == playlist.playlist.id)) {
+      const playlistForm = new FormGroup({
+        playlistID: new FormControl(playlist.playlist.id, Validators.required),
+      });
+      this.playlists.push(playlistForm);
+    }
   }
 
-  removeID(ID: string) {
-    const index = this.playlists.controls.findIndex(formID => formID.value.id === ID);
-    if (index !== -1) {
+  deleteSelectedPlaylistFromForm(playlist: SelectablePlaylist) {
+    const index = this.playlists.controls.findIndex(c => c.value.playlistID == playlist.playlist.id);
+    if (index > -1) {
       this.playlists.removeAt(index);
     }
   }
+}
+
+export interface SelectablePlaylist {
+  selected: boolean;
+  playlist: Playlist;
+}
+
+export interface SelectablePlaylistGroup {
+  selected: boolean;
+  opened: boolean;
+  name: string;
+  playlists: SelectablePlaylist[];
 }
