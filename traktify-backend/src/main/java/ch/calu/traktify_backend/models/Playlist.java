@@ -13,13 +13,16 @@ public class Playlist {
 
     private String name;
     private String spotifyID;
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(
             name = "playlist_songs",
             joinColumns = @JoinColumn(name = "song_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "playlist_id", referencedColumnName = "id")
     )
     private List<Song> songList;
+
+    @ManyToMany(mappedBy = "playlists")
+    private List<PlaylistGroup> playlistGroups;
 
     public String getName() {
         return name;

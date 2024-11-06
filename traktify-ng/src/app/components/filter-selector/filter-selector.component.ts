@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {MatChipListbox, MatChipOption} from '@angular/material/chips';
 import {MatAccordion, MatExpansionPanel, MatExpansionPanelDescription, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
@@ -7,6 +7,8 @@ import {MatButton} from '@angular/material/button';
 import {FormArray, FormControl, FormGroup, Validators} from '@angular/forms';
 import {GroupService} from '../../services/group.service';
 import {Playlist} from '../../models/playlist.model';
+import {PlaylistGroup} from '../../models/playlist-group';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-filter-selector[playlistForm]',
@@ -22,7 +24,8 @@ import {Playlist} from '../../models/playlist.model';
     NgIf,
     MatButton,
     MatAccordion,
-    NgForOf
+    NgForOf,
+    RouterLink,
   ],
   templateUrl: './filter-selector.component.html',
   styleUrl: './filter-selector.component.scss'
@@ -31,28 +34,14 @@ export class FilterSelectorComponent implements OnInit {
   @Input({required: true}) playlistForm!: FormGroup;
   groupList: SelectablePlaylistGroup[] = [];
 
-  @ViewChild('chiplist', {static: true}) chipList!: MatChipListbox;
-
   constructor(private groupService: GroupService) {
   }
 
   ngOnInit(): void {
     this.groupService.getGroups().subscribe(groups => {
-      this.groupList = groups.map(g => {
-        let selectablePlaylists: SelectablePlaylist[] = g.playlistList.map(p => {
-          return {
-            selected: true,
-            playlist: p
-          };
-        });
-        return {
-          selected: true,
-          opened: false,
-          name: g.name,
-          playlists: selectablePlaylists
-        };
-      });
-      this.groupList.forEach(g => g.playlists.forEach(p => {
+      this.groupList = groups.map(g => this.getSelectableGroup(g));
+
+      this.groupList?.forEach(g => g.playlists.forEach(p => { //Par défaut toutes les playlists sont sélectionnées.
         this.addSelectedPlaylistToForm(p);
       }));
     });
@@ -122,6 +111,23 @@ export class FilterSelectorComponent implements OnInit {
     const index = this.playlists.controls.findIndex(c => c.value.playlistID == playlist.playlist.id);
     if (index > -1) {
       this.playlists.removeAt(index);
+    }
+  }
+
+  private getSelectableGroup(g: PlaylistGroup): SelectablePlaylistGroup {
+    let selectablePlaylists: SelectablePlaylist[] = g.playlists?.map(p => this.getSelectablePlaylist(p));
+    return {
+      selected: true,
+      opened: false,
+      name: g.name,
+      playlists: selectablePlaylists
+    };
+  }
+
+  private getSelectablePlaylist(p: Playlist): SelectablePlaylist {
+    return {
+      selected: true,
+      playlist: p
     }
   }
 }

@@ -25,7 +25,7 @@ export class PlaylistService {
             console.log('API Error: ', error);
             return throwError(() => {return new Error('An error occurred with the local server:', error)});
           })
-        )
+        );
     }
   }
 }

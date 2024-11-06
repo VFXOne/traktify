@@ -2,7 +2,7 @@
   Match settings
 </h3>
 <form [formGroup]="matchForm" (ngSubmit)="onSubmit()">
-  <app-filter-selector [playlistForm] = "matchForm"></app-filter-selector>
+  <app-filter-selector [playlistForm]="matchForm"></app-filter-selector>
 
   <mat-divider [inset]="true"></mat-divider>
 
