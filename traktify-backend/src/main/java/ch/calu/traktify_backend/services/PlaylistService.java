@@ -31,13 +31,18 @@ public class PlaylistService {
 
     }
 
+    /**
+     * Retourne une liste de playlist sans les morceaux de chaque playlist.
+     * Il faut utiliser la fonction `getSongsFromPlaylist` pour remplir ces listes avec les morceaux.
+     * @return Une liste d'objets PlaylistDTO pour le frontend.
+     */
     public PlaylistDTO[] getAllPlaylists() {
         List<Playlist> playlists = playlistRepository.findAll();
         PlaylistDTO[] playlistDTOs = new PlaylistDTO[playlists.size()];
 
         for (int i = 0; i < playlists.size(); i++) {
             Playlist playlist = playlists.get(i);
-            PlaylistDTO playlistDTO = DTOMapper.INSTANCE.toPlaylistDTO(playlist);
+            PlaylistDTO playlistDTO = DTOMapper.INSTANCE.toPlaylistDTOWithoutSongs(playlist);
             playlistDTOs[i] = playlistDTO;
         }
 

@@ -1,25 +1,36 @@
 <div class="horizontal-layout">
-  <mat-expansion-panel class="playlist-panel" (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)">
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <mat-slide-toggle checked (click)="toggleSelect($event, toggle)" #toggle></mat-slide-toggle>
-        <div style="margin-left: 14px;">
-          {{ group.name }} Playlists
-        </div>
-      </mat-panel-title>
-      <mat-panel-description class="panel-description" *ngIf="panelOpenState()">
-        <button mat-raised-button (click)="selectAll($event)">Select All</button>
-        <button mat-raised-button (click)="deselectAll($event)">Deselect All</button>
-      </mat-panel-description>
-    </mat-expansion-panel-header>
 
-    <mat-chip-listbox multiple #chiplist>
-      @for (playlist of group.playlistList; track playlist) {
-        <mat-chip-option [value]="playlist.id" (selectionChange)="chipSelected($event)">
-          {{playlist.name}}
-        </mat-chip-option>
-      }
-    </mat-chip-listbox>
+  <h3 *ngIf="groupList.length < 1; else displayGroups">
+    No group is configured. Please go to the <a routerLink="/settings">settings</a> to create one.
+  </h3>
 
-  </mat-expansion-panel>
+  <ng-template #displayGroups>
+    <mat-accordion>
+      <mat-expansion-panel class="playlist-panel" *ngFor="let group of groupList" (opened)="group.opened = true"
+                           (closed)="group.opened = false">
+
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-slide-toggle [checked]="group.selected" (click)="toggleGroup($event, group)"></mat-slide-toggle>
+            <div style="margin-left: 14px;">
+              {{ group.name }} Playlists
+            </div>
+          </mat-panel-title>
+
+          <mat-panel-description class="panel-description" *ngIf="group.opened">
+            <button mat-raised-button (click)="selectAllPlaylists($event, group)" type="button">Select All</button>
+            <button mat-raised-button (click)="deselectAllPlaylists($event, group)" type="button">Deselect All</button>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <mat-chip-listbox multiple>
+          <mat-chip-option *ngFor="let playlist of group.playlists" [selected]="playlist.selected"
+                           (click)="togglePlaylist(group, playlist)">
+            {{ playlist.playlist.name }}
+          </mat-chip-option>
+        </mat-chip-listbox>
+
+      </mat-expansion-panel>
+    </mat-accordion>
+  </ng-template>
 </div>

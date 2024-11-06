@@ -2,18 +2,7 @@
   Match settings
 </h3>
 <form [formGroup]="matchForm" (ngSubmit)="onSubmit()">
-  <!--
-  <div class="filter-options">
-    <mat-checkbox>
-      Instant mode
-    </mat-checkbox>
-  </div>
-  -->
-  <mat-accordion>
-    @for (group of groupList; track group) {
-      <app-filter-selector [group]="group" [playlistForm]="matchForm"></app-filter-selector>
-    }
-  </mat-accordion>
+  <app-filter-selector [playlistForm]="matchForm"></app-filter-selector>
 
   <mat-divider [inset]="true"></mat-divider>
 

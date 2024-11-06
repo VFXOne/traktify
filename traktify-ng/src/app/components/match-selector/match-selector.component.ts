@@ -5,9 +5,6 @@ import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {MatFormField, MatLabel} from '@angular/material/form-field';
 import {MatOption, MatSelect} from '@angular/material/select';
 import {MatChipListbox, MatChipOption} from '@angular/material/chips';
-import {FilterSelectorComponent} from '../filter-selector/filter-selector.component';
-import {GroupFilter} from '../../models/group-filter';
-import {GroupService} from '../../services/group.service';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {MatButton} from '@angular/material/button';
@@ -17,6 +14,7 @@ import {MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatH
 import {MatSort, MatSortHeader, Sort} from '@angular/material/sort';
 import {ArtistsDisplayPipe} from '../../pipes/artists-display.pipe';
 import {DurationPipe} from '../../pipes/duration.pipe';
+import {FilterSelectorComponent} from '../filter-selector/filter-selector.component';
 
 @Component({
   selector: 'app-match-selector[song]',
@@ -61,26 +59,21 @@ export class MatchSelectorComponent implements OnInit {
   @ViewChild('matchTable', {static: true}) table!: MatTable<Song>;
   displayColumns: string[] = ['name', 'key', 'bpm', 'duration', 'energy', 'danceability'];
 
-  groupList: GroupFilter[] = [];
   matchForm!: FormGroup;
   matchList: Song[] = [];
 
-  constructor(private groupService: GroupService, private builder: FormBuilder, private matchService: MatchService) {
+  constructor(private builder: FormBuilder, private matchService: MatchService) {
   }
 
   ngOnInit(): void {
-    this.groupService.getGroups().subscribe(groups => {
-      this.groupList = groups;
-    });
-
     this.matchForm = this.builder.group({
       playlists: this.builder.array([])
     });
   }
 
   onSubmit() {
-    console.log(this.getSelectedPlaylistsIDs());
-    this.matchService.getSonsMatching(this.song.id, this.getSelectedPlaylistsIDs()).subscribe(songs => {
+    console.log("Match submission: " + this.getSelectedPlaylistsIDs());
+    this.matchService.getSongsMatching(this.song.id, this.getSelectedPlaylistsIDs()).subscribe(songs => {
       this.matchList = songs;
       this.table.renderRows();
     });
@@ -89,7 +82,8 @@ export class MatchSelectorComponent implements OnInit {
   getSelectedPlaylistsIDs(): string[] {
     const playlistIDs: string[] = [];
     const formIDs = this.matchForm.get('playlists') as FormArray;
-    formIDs.controls.forEach(control => control.get('id'));
+    formIDs.controls.forEach(control => playlistIDs.push(control.value.playlistID));
+    console.log("Playlist IDs : " + playlistIDs)
     return playlistIDs;
   }
 

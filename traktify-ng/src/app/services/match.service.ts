@@ -11,7 +11,7 @@ export class MatchService {
   constructor() {
   }
 
-  getSonsMatching(songID: string, playlistsIDs: string[]): Observable<Song[]> {
+  getSongsMatching(songID: string, playlistsIDs: string[]): Observable<Song[]> {
     return new Observable<Song[]>(subscriber => {
       subscriber.next(SONGLIST);
     });
