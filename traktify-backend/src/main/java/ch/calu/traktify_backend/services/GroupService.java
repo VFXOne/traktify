@@ -5,7 +5,6 @@ import ch.calu.traktify_backend.models.dto.DTOMapper;
 import ch.calu.traktify_backend.models.dto.GroupDTO;
 import ch.calu.traktify_backend.repositories.GroupRepository;
 import ch.calu.traktify_backend.repositories.PlaylistRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -14,11 +13,13 @@ import java.util.List;
 @Service
 public class GroupService {
 
-    @Autowired
-    GroupRepository groupRepository;
+    private final GroupRepository groupRepository;
+    private final PlaylistRepository playlistRepository;
 
-    @Autowired
-    PlaylistRepository playlistRepository;
+    public GroupService(GroupRepository groupRepository, PlaylistRepository playlistRepository) {
+        this.groupRepository = groupRepository;
+        this.playlistRepository = playlistRepository;
+    }
 
     public GroupDTO[] getAllGroups() {
         List<PlaylistGroup> playlistGroups = groupRepository.findAll();
@@ -53,7 +54,7 @@ public class GroupService {
 
     public void deleteGroup(String id) {
         Long longID = Long.parseLong(id);
-        groupRepository.findById(longID).ifPresent(group -> groupRepository.delete(group));
+        groupRepository.findById(longID).ifPresent(groupRepository::delete);
     }
 
     public void addPlaylistToGroup(String groupID, String playlistID) {

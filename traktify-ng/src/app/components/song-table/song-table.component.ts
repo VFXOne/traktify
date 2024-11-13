@@ -57,7 +57,7 @@ export class SongTableComponent implements OnInit {
   songs: Song[] = [];
   sortedSongs: Song[] = [];
   selectedSong: Song | undefined;
-  songsLoaded: boolean = false; //TODO trouver comment afficher le spinner
+  songsLoaded: boolean = false;
 
   constructor(private route: ActivatedRoute, private songService: SongService) {
   }
@@ -66,11 +66,11 @@ export class SongTableComponent implements OnInit {
     this.route.params.subscribe(params => {
       const id = params['id'];
       this.songsLoaded = false;
-      console.log("load songs");
+      console.log('load songs');
       this.songService.getSongsFromPlaylist(id).subscribe(songs => {
         this.songs = songs;
         this.songsLoaded = true;
-        console.log("songs loaded");
+        console.log('songs loaded');
         this.table.renderRows();
       });
     });
@@ -101,31 +101,42 @@ export class SongTableComponent implements OnInit {
   }
 
   protected sortTable(sort: Sort) {
+    this.sortedSongs = new SongTableSorter().sortSongs(sort, this.songs);
+    this.table.renderRows();
+  }
+}
+
+export class SongTableSorter {
+
+  public sortSongs(sort: Sort, songs: Song[]): Song[] {
     if (!sort.active || sort.direction === '') {
-      // reset order
-      this.sortedSongs = this.songs;
-    } else {
-      this.sortedSongs = this.songs.sort((a, b) => {
-        const isAsc = sort.direction === 'asc';
-        switch (sort.active) {
-          case 'index':
-            return this.compare(a.index, b.index, isAsc);
-          case 'name':
-            return this.compare(a.name, b.name, isAsc);
-          case 'artists':
-            return this.compare(a.artists[0].name, b.artists[0].name, isAsc);
-          case 'key':
-            return this.compare(a.audioInfo?.camelotKey, b.audioInfo?.camelotKey, isAsc);
-          case 'bpm':
-            return this.compare(a.audioInfo?.tempo, b.audioInfo?.tempo, isAsc);
-          case 'duration':
-            return this.compare(a.duration_ms, b.duration_ms, isAsc);
-          default:
-            return 0;
-        }
-      });
-      this.table.renderRows();
+      sort.active = 'index';
+      sort.direction = 'asc';
     }
+
+    return songs.sort((a, b) => {
+      const isAsc = sort.direction === 'asc';
+      switch (sort.active) {
+        case 'index':
+          return this.compare(a.index, b.index, isAsc);
+        case 'name':
+          return this.compare(a.name, b.name, isAsc);
+        case 'artists':
+          return this.compare(a.artists[0].name, b.artists[0].name, isAsc);
+        case 'key':
+          return this.compare(a.audioInfo?.camelotKey, b.audioInfo?.camelotKey, isAsc);
+        case 'bpm':
+          return this.compare(a.audioInfo?.tempo, b.audioInfo?.tempo, isAsc);
+        case 'duration':
+          return this.compare(a.duration_ms, b.duration_ms, isAsc);
+        case 'energy':
+          return this.compare(a.audioInfo?.energy, b.audioInfo?.energy, isAsc);
+        case 'danceability':
+          return this.compare(a.audioInfo?.danceability, b.audioInfo?.danceability, isAsc);
+        default:
+          return 0;
+      }
+    });
   }
 
   private compare(a: number | string, b: number | string, isAsc: boolean) {
