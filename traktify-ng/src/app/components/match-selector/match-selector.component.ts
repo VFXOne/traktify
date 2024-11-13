@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {Song} from '../../models/song.model';
 import {MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
@@ -15,6 +15,7 @@ import {MatSort, MatSortHeader, Sort} from '@angular/material/sort';
 import {ArtistsDisplayPipe} from '../../pipes/artists-display.pipe';
 import {DurationPipe} from '../../pipes/duration.pipe';
 import {FilterSelectorComponent} from '../filter-selector/filter-selector.component';
+import {SongTableSorter} from '../song-table/song-table.component';
 
 @Component({
   selector: 'app-match-selector[song]',
@@ -54,13 +55,15 @@ import {FilterSelectorComponent} from '../filter-selector/filter-selector.compon
   templateUrl: './match-selector.component.html',
   styleUrl: './match-selector.component.scss'
 })
-export class MatchSelectorComponent implements OnInit {
+export class MatchSelectorComponent implements OnInit, OnChanges {
   @Input({required: true}) song!: Song;
   @ViewChild('matchTable', {static: true}) table!: MatTable<Song>;
   displayColumns: string[] = ['name', 'key', 'bpm', 'duration', 'energy', 'danceability'];
 
   matchForm!: FormGroup;
   matchList: Song[] = [];
+
+  matchedSongID: string = '';
 
   constructor(private builder: FormBuilder, private matchService: MatchService) {
   }
@@ -71,8 +74,14 @@ export class MatchSelectorComponent implements OnInit {
     });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.song.id !== this.matchedSongID) {
+      this.matchList = [];
+    }
+  }
+
   onSubmit() {
-    console.log("Match submission: " + this.getSelectedPlaylistsIDs());
+    this.matchedSongID = this.song.id;
     this.matchService.getSongsMatching(this.song.id, this.getSelectedPlaylistsIDs()).subscribe(songs => {
       this.matchList = songs;
       this.table.renderRows();
@@ -83,13 +92,11 @@ export class MatchSelectorComponent implements OnInit {
     const playlistIDs: string[] = [];
     const formIDs = this.matchForm.get('playlists') as FormArray;
     formIDs.controls.forEach(control => playlistIDs.push(control.value.playlistID));
-    console.log("Playlist IDs : " + playlistIDs)
     return playlistIDs;
   }
 
   sortTable(sort: Sort) {
-    //TODO
-
+    this.matchList = new SongTableSorter().sortSongs(sort, this.matchList);
     this.table.renderRows();
   }
 }

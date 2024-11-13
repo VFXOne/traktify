@@ -30,7 +30,7 @@ public class SongController {
 
     @GetMapping("song/{id}")
     public SongDTO getSong(@PathVariable String id) {
-        Song songFound = songService.getSongFromPlaylist(id);
+        Song songFound = songService.getSong(id);
 
         return DTOMapper.INSTANCE.toSongDTO(songFound);
     }

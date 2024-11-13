@@ -11,7 +11,7 @@ import {NgForOf, NgIf} from '@angular/common';
 import {MatFormField, MatLabel, MatSuffix} from '@angular/material/form-field';
 import {MatInput} from '@angular/material/input';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {DeleteGroupDialogComponent, EditGroupDialogComponent, NewGroupDialogComponent} from './group-settings-dialogs.component';
@@ -46,6 +46,7 @@ export interface DialogData {
     MatSuffix,
     MatInput,
     ReactiveFormsModule,
+    FormsModule,
   ],
   templateUrl: './group-settings.component.html',
   styleUrl: './group-settings.component.scss'
@@ -55,7 +56,7 @@ export class GroupSettingsComponent implements OnInit {
   playlists: Playlist[] = [];
 
   paginatedPlaylists: Playlist[] = [];
-  pageEvent: PageEvent | undefined;
+  pageEvent: PageEvent;
   pageIndex: number = 0;
   pageSize: number = 5;
   searchString: string = '';
@@ -64,27 +65,33 @@ export class GroupSettingsComponent implements OnInit {
   readonly snackbar = inject(MatSnackBar);
 
   constructor(private groupService: GroupService, private playlistService: PlaylistService) {
+    this.pageEvent = {
+      pageSize: 5,
+      pageIndex: 0,
+      length: this.playlists.length,
+      previousPageIndex: 0
+    };
   }
 
   ngOnInit() {
     this.groupService.getGroups().subscribe(g => this.groupList = g);
     this.playlistService.getPlaylists().subscribe(p => {
       this.playlists = p;
-      this.pageEvent = {
-        pageSize: 5,
-        pageIndex: 0,
-        length: this.playlists.length,
-        previousPageIndex: 0
-      };
-      this.paginatePlaylists(this.pageEvent);
+      this.paginatePlaylists(this.playlists);
     });
   }
 
-  paginatePlaylists(event: PageEvent): void {
+  pageChange(event: PageEvent) {
     this.pageEvent = event;
-    let index = 0, startIndex = event.pageIndex * event.pageSize, endIndex = startIndex + event.pageSize;
+    this.paginatePlaylists(this.playlists);
+  }
 
-    this.paginatedPlaylists = this.playlists.filter(() => {
+  paginatePlaylists(playlists: Playlist[]): void {
+    this.pageEvent.length = playlists.length;
+
+    let index = 0, startIndex = this.pageEvent.pageIndex * this.pageEvent.pageSize, endIndex = startIndex + this.pageEvent.pageSize;
+
+    this.paginatedPlaylists = playlists.filter(() => {
       index++;
       return (index > startIndex && index <= endIndex);
     });
@@ -97,12 +104,13 @@ export class GroupSettingsComponent implements OnInit {
   onSearchChange(event: Event): void {
     event.stopPropagation();
 
-    this.searchString = (event.target as HTMLInputElement).value;
-    this.paginatedPlaylists = this.playlists.filter(p => p.name.toLowerCase().includes(this.searchString.toLowerCase()));
+    let searchedPlaylists = this.playlists.filter(p => p.name.toLowerCase().includes(this.searchString.toLowerCase()));
+    this.paginatePlaylists(searchedPlaylists);
   }
 
   resetSearch(): void {
     this.searchString = '';
+    this.paginatePlaylists(this.playlists);
   }
 
   openNewGroupDialog(): void {

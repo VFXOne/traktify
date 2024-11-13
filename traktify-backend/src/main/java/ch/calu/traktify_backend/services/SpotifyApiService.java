@@ -3,7 +3,6 @@ package ch.calu.traktify_backend.services;
 import ch.calu.traktify_backend.models.Settings;
 import ch.calu.traktify_backend.repositories.SettingsRepository;
 import org.apache.hc.core5.http.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -31,8 +30,11 @@ public class SpotifyApiService {
     private static final String redirectURI = "http://localhost:8082/backend/get-user-code";
     protected SpotifyApi api = null;
 
-    @Autowired
-    SettingsRepository settingsRepository;
+    private final SettingsRepository settingsRepository;
+
+    public SpotifyApiService(SettingsRepository settingsRepository) {
+        this.settingsRepository = settingsRepository;
+    }
 
     public SpotifyApi getApi() {
         return api;

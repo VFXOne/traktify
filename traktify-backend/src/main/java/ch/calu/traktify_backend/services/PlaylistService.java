@@ -5,7 +5,6 @@ import ch.calu.traktify_backend.models.Song;
 import ch.calu.traktify_backend.models.dto.DTOMapper;
 import ch.calu.traktify_backend.models.dto.PlaylistDTO;
 import ch.calu.traktify_backend.repositories.PlaylistRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,13 +12,15 @@ import java.util.List;
 @Service
 public class PlaylistService {
 
-    @Autowired
-    PlaylistRepository playlistRepository;
+    private final PlaylistRepository playlistRepository;
+    private final SongService songService;
+    private final SpotifyMusicService spotifyMusicService;
 
-    @Autowired
-    SongService songService;
-    @Autowired
-    private SpotifyMusicService spotifyMusicService;
+    public PlaylistService(PlaylistRepository playlistRepository, SongService songService, SpotifyMusicService spotifyMusicService) {
+        this.playlistRepository = playlistRepository;
+        this.songService = songService;
+        this.spotifyMusicService = spotifyMusicService;
+    }
 
     public void syncPlaylists() {
         List<Playlist> storedPlaylists = playlistRepository.findAll();
@@ -34,6 +35,7 @@ public class PlaylistService {
     /**
      * Retourne une liste de playlist sans les morceaux de chaque playlist.
      * Il faut utiliser la fonction `getSongsFromPlaylist` pour remplir ces listes avec les morceaux.
+     *
      * @return Une liste d'objets PlaylistDTO pour le frontend.
      */
     public PlaylistDTO[] getAllPlaylists() {
