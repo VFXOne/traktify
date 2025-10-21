@@ -8,3 +8,10 @@
   justify-content: left;
   align-items: baseline;
 }
+
+::ng-deep .song-detail-dialog-panel {
+  border-radius: 16px;
+  background: var(--mat-surface-container-high);
+  padding: 16px;
+}
+

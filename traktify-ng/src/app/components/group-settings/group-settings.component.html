@@ -1,10 +1,11 @@
 <div class="container">
-  <h3 *ngIf="groupList.length < 1; else displayGroups">
-    There is no group. Create one to be able to edit it.
-  </h3>
-  <ng-template #displayGroups>
+  @if (groupList().length < 1) {
+    <h3>
+      There is no group. Create one to be able to edit it.
+    </h3>
+  } @else {
     <mat-accordion>
-      <mat-expansion-panel *ngFor="let group of groupList" style="width: 100%">
+      <mat-expansion-panel *ngFor="let group of groupList()" style="width: 100%">
         <mat-expansion-panel-header>
           <mat-panel-title>
             {{ group.name }}
@@ -33,23 +34,24 @@
           </mat-form-field>
         </div>
 
-        <mat-selection-list *ngFor="let playlist of paginatedPlaylists">
-          <mat-list-option [selected]="isInPlaylist(playlist, group)" (selectedChange)="onPlaylistSelectionChange(playlist, group, $event)">
+        <mat-selection-list *ngFor="let playlist of paginatedPlaylists()">
+          <mat-list-option [selected]="isInPlaylist(playlist, group)"
+                           (selectedChange)="onPlaylistSelectionChange(playlist, group, $event)">
             {{ playlist.name }}
           </mat-list-option>
         </mat-selection-list>
 
-        <mat-paginator [length]="pageEvent.length"
-                       [pageSize]="pageSize"
-                       [pageIndex]="pageIndex"
+        <mat-paginator [length]="pageLength()"
+                       [pageSize]="pageSize()"
+                       [pageIndex]="pageIndex()"
                        [pageSizeOptions]="[5,10,15,20]"
                        (page)="pageChange($event)"
         ></mat-paginator>
 
       </mat-expansion-panel>
     </mat-accordion>
+  }
 
-  </ng-template>
 
   <div>
     <button mat-fab aria-label="Add group" class="add-button" (click)="openNewGroupDialog()">

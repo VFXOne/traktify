@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PlaylistSelectorComponent } from '../components/playlist-selector/playlist-selector.component';
+import { PlaylistSelectorComponent } from '../components/containers/playlist-selector/playlist-selector.component';
 
 describe('PlaylistSelectorComponent', () => {
   let component: PlaylistSelectorComponent;

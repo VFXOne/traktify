@@ -1,13 +1,13 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, computed, inject, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {MatAccordion, MatExpansionPanel, MatExpansionPanelDescription, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
-import {MatButton, MatFabButton, MatIconButton} from '@angular/material/button';
+import {MatFabButton, MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {GroupService} from '../../services/group.service';
 import {PlaylistGroup} from '../../models/playlist-group';
-import {MatList, MatListOption, MatListSubheaderCssMatStyler, MatSelectionList} from '@angular/material/list';
+import {MatListOption, MatListSubheaderCssMatStyler, MatSelectionList} from '@angular/material/list';
 import {Playlist} from '../../models/playlist.model';
 import {PlaylistService} from '../../services/playlist.service';
-import {NgForOf, NgIf} from '@angular/common';
+import {NgForOf} from '@angular/common';
 import {MatFormField, MatLabel, MatSuffix} from '@angular/material/form-field';
 import {MatInput} from '@angular/material/input';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
@@ -15,6 +15,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {DeleteGroupDialogComponent, EditGroupDialogComponent, NewGroupDialogComponent} from './group-settings-dialogs.component';
+import {first} from 'rxjs';
 
 export interface DialogData {
   name: string;
@@ -28,11 +29,9 @@ export interface DialogData {
     MatExpansionPanel,
     MatExpansionPanelTitle,
     MatIconButton,
-    MatButton,
     MatIcon,
     MatExpansionPanelDescription,
     MatExpansionPanelHeader,
-    MatList,
     MatSelectionList,
     MatListOption,
     NgForOf,
@@ -42,7 +41,6 @@ export interface DialogData {
     MatLabel,
     MatPaginator,
     MatFabButton,
-    NgIf,
     MatSuffix,
     MatInput,
     ReactiveFormsModule,
@@ -52,49 +50,45 @@ export interface DialogData {
   styleUrl: './group-settings.component.scss'
 })
 export class GroupSettingsComponent implements OnInit {
-  groupList: PlaylistGroup[] = [];
-  playlists: Playlist[] = [];
+  readonly groupList: WritableSignal<PlaylistGroup[]> = signal([]);
+  readonly playlists: WritableSignal<Playlist[]> = signal([]);
 
-  paginatedPlaylists: Playlist[] = [];
-  pageEvent: PageEvent;
-  pageIndex: number = 0;
-  pageSize: number = 5;
-  searchString: string = '';
+  readonly paginatedPlaylists: Signal<Playlist[]>;
+
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(5)
+  readonly pageLength = computed(() => this.playlists().length);
+
+  readonly searchString = signal('');
 
   readonly dialog = inject(MatDialog);
   readonly snackbar = inject(MatSnackBar);
 
+  //TODO séparer entre une façade et un composant d'affichage
   constructor(private groupService: GroupService, private playlistService: PlaylistService) {
-    this.pageEvent = {
-      pageSize: 5,
-      pageIndex: 0,
-      length: this.playlists.length,
-      previousPageIndex: 0
-    };
+    this.paginatedPlaylists = computed(() => {
+      let index = 0, startIndex = this.pageIndex() * this.pageSize(), endIndex = startIndex + this.pageSize();
+
+      return this.playlists().filter(() => {
+        index++;
+        return (index > startIndex && index <= endIndex);
+      })
+        .filter(p => p.name.toLowerCase().includes(this.searchString().toLowerCase()));
+    });
+
   }
 
   ngOnInit() {
-    this.groupService.getGroups().subscribe(g => this.groupList = g);
-    this.playlistService.getPlaylists().subscribe(p => {
-      this.playlists = p;
-      this.paginatePlaylists(this.playlists);
+    this.groupService.getGroups().pipe(first()).subscribe(g => this.groupList.set(g));
+
+    this.playlistService.getPlaylists().pipe(first()).subscribe(p => {
+      this.playlists.set(p);
     });
   }
 
   pageChange(event: PageEvent) {
-    this.pageEvent = event;
-    this.paginatePlaylists(this.playlists);
-  }
-
-  paginatePlaylists(playlists: Playlist[]): void {
-    this.pageEvent.length = playlists.length;
-
-    let index = 0, startIndex = this.pageEvent.pageIndex * this.pageEvent.pageSize, endIndex = startIndex + this.pageEvent.pageSize;
-
-    this.paginatedPlaylists = playlists.filter(() => {
-      index++;
-      return (index > startIndex && index <= endIndex);
-    });
+    this.pageSize.set(event.pageSize);
+    this.pageIndex.set(event.pageIndex);
   }
 
   isInPlaylist(playlist: Playlist, group: PlaylistGroup): boolean {
@@ -103,14 +97,10 @@ export class GroupSettingsComponent implements OnInit {
 
   onSearchChange(event: Event): void {
     event.stopPropagation();
-
-    let searchedPlaylists = this.playlists.filter(p => p.name.toLowerCase().includes(this.searchString.toLowerCase()));
-    this.paginatePlaylists(searchedPlaylists);
   }
 
   resetSearch(): void {
-    this.searchString = '';
-    this.paginatePlaylists(this.playlists);
+    this.searchString.set('');
   }
 
   openNewGroupDialog(): void {
@@ -160,7 +150,7 @@ export class GroupSettingsComponent implements OnInit {
       this.groupService.deleteGroup(group).subscribe({
         next: (ok) => {
           if (ok) {
-            this.groupService.getGroups().subscribe(g => this.groupList = g);
+            this.groupService.getGroups().subscribe(g => this.groupList.set(g));
             this.snackBarNotif('Group deleted!');
           } else {
             this.snackBarNotif('An error occurred');
@@ -185,7 +175,7 @@ export class GroupSettingsComponent implements OnInit {
   addNewGroup(group: PlaylistGroup): void {
     this.groupService.createGroup(group).subscribe({
       next: (newGroup) => {
-        this.groupList.push(newGroup);
+        this.groupList().push(newGroup);
         this.snackBarNotif('New group created!');
         return newGroup;
       },

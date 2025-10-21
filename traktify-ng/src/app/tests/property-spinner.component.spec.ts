@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PropertySpinnerComponent } from '../components/property-spinner/property-spinner.component';
+import { PropertySpinnerComponent } from '../components/display/property-spinner/property-spinner.component';
 
 describe('PropertySpinnerComponent', () => {
   let component: PropertySpinnerComponent;

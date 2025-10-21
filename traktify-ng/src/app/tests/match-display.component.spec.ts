@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MatchDisplayComponent } from '../components/match-display/match-display.component';
+import { MatchDisplayComponent } from '../components/display/match-display/match-display.component';
 
 describe('MatchDisplayComponent', () => {
   let component: MatchDisplayComponent;

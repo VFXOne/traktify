@@ -37,7 +37,7 @@ public class SpotifyMusicService {
         List<PlaylistSimplified> list = PagingRequestHelper.getAllElements((offset) -> spotifyApiService.getApi().getListOfCurrentUsersPlaylists().offset(offset).build());
 
         for (final PlaylistSimplified spotifyPlaylist : list) {
-            if (userID != null && spotifyPlaylist.getOwner().getId().equals(userID)) {
+            if (spotifyPlaylist.getOwner().getId().equals(userID)) {
                 Playlist playlist = new Playlist();
                 playlist.setSpotifyID(spotifyPlaylist.getId());
                 playlist.setName(spotifyPlaylist.getName());

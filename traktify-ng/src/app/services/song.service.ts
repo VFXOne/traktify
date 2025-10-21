@@ -35,14 +35,24 @@ export class SongService {
     }
   }
 
-  getSongByID(id: string | null): Observable<Song> {
-    let song = SONGLIST.find(s => s.id === id);
-    return new Observable<Song>((observer) => {
-      if (song == null) {
-        observer.error('Song ID not found');
-      } else {
-        observer.next(song);
-      }
-    });
+  getSongByID(songID: string | null): Observable<Song> {
+    if (environment.dummyData) {
+      let song = SONGLIST.find(s => s.id === songID);
+      return new Observable<Song>((observer) => {
+        if (song == null) {
+          observer.error('Song ID not found');
+        } else {
+          observer.next(song);
+        }
+      });
+    } else {
+      return this.http.get<Song>(this.url + 'song/' + songID)
+        .pipe(
+          catchError((error) => {
+            console.log("[Song service] unable to get songs for playlist " + songID, error);
+            return throwError(() => {return new Error('An error occurred with the local server:', error)});
+          })
+        )
+    }
   }
 }

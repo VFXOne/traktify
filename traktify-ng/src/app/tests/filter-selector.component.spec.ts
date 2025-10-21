@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FilterSelectorComponent } from '../components/filter-selector/filter-selector.component';
+import { FilterSelectorComponent } from '../components/display/filter-selector/filter-selector.component';
 
 describe('FilterSelectorComponent', () => {
   let component: FilterSelectorComponent;

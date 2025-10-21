@@ -1,11 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {MatButton} from '@angular/material/button';
-import {AppStore} from '../../store/store';
+import {AppStore} from '../../../store/store';
 import {Store} from '@ngrx/store';
-import {checkLogin, loginInProgress} from '../../store/actions';
+import {checkLogin, loginInProgress} from '../../../store/actions';
 import {NgIf} from '@angular/common';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
-import {selectError, selectLoading, selectLoggedIn} from '../../store/selectors';
+import {selectError, selectLoading, selectLoggedIn} from '../../../store/selectors';
 
 @Component({
   selector: 'app-home',

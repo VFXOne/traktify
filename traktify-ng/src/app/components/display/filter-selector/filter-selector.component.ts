@@ -5,9 +5,9 @@ import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {NgForOf, NgIf} from '@angular/common';
 import {MatButton} from '@angular/material/button';
 import {FormArray, FormControl, FormGroup, Validators} from '@angular/forms';
-import {GroupService} from '../../services/group.service';
-import {Playlist} from '../../models/playlist.model';
-import {PlaylistGroup} from '../../models/playlist-group';
+import {GroupService} from '../../../services/group.service';
+import {Playlist} from '../../../models/playlist.model';
+import {PlaylistGroup} from '../../../models/playlist-group';
 import {RouterLink} from '@angular/router';
 
 @Component({

@@ -1,11 +1,5 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, input, InputSignal, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {Song} from '../../models/song.model';
-import {MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
-import {MatSlideToggle} from '@angular/material/slide-toggle';
-import {MatFormField, MatLabel} from '@angular/material/form-field';
-import {MatOption, MatSelect} from '@angular/material/select';
-import {MatChipListbox, MatChipOption} from '@angular/material/chips';
-import {MatCheckbox} from '@angular/material/checkbox';
 import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {MatButton} from '@angular/material/button';
 import {MatDivider} from '@angular/material/divider';
@@ -14,26 +8,14 @@ import {MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatH
 import {MatSort, MatSortHeader, Sort} from '@angular/material/sort';
 import {ArtistsDisplayPipe} from '../../pipes/artists-display.pipe';
 import {DurationPipe} from '../../pipes/duration.pipe';
-import {FilterSelectorComponent} from '../filter-selector/filter-selector.component';
-import {SongTableSorter} from '../song-table/song-table.component';
+import {FilterSelectorComponent} from '../display/filter-selector/filter-selector.component';
+import {SongTableSorter} from '../display/song-list-display/song-list-display.component';
 
 @Component({
   selector: 'app-match-selector[song]',
   standalone: true,
   imports: [
-    MatAccordion,
-    MatExpansionPanel,
-    MatExpansionPanelHeader,
-    MatLabel,
-    MatSlideToggle,
-    MatExpansionPanelTitle,
-    MatFormField,
-    MatSelect,
-    MatOption,
-    MatChipListbox,
-    MatChipOption,
     FilterSelectorComponent,
-    MatCheckbox,
     MatButton,
     ReactiveFormsModule,
     MatDivider,
@@ -56,7 +38,7 @@ import {SongTableSorter} from '../song-table/song-table.component';
   styleUrl: './match-selector.component.scss'
 })
 export class MatchSelectorComponent implements OnInit, OnChanges {
-  @Input({required: true}) song!: Song;
+  song: InputSignal<Song | undefined> = input.required<Song | undefined>();
   @ViewChild('matchTable', {static: true}) table!: MatTable<Song>;
   displayColumns: string[] = ['name', 'key', 'bpm', 'duration', 'energy', 'danceability'];
 
@@ -75,14 +57,14 @@ export class MatchSelectorComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.song.id !== this.matchedSongID) {
+    if (this.song()?.id !== this.matchedSongID) {
       this.matchList = [];
     }
   }
 
   onSubmit() {
-    this.matchedSongID = this.song.id;
-    this.matchService.getSongsMatching(this.song.id, this.getSelectedPlaylistsIDs()).subscribe(songs => {
+    this.matchedSongID = this.song()!.id;
+    this.matchService.getSongsMatching(this.song()!.id, this.getSelectedPlaylistsIDs()).subscribe(songs => {
       this.matchList = songs;
       this.table.renderRows();
     });

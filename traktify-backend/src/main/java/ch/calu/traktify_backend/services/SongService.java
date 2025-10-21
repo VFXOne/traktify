@@ -29,7 +29,7 @@ public class SongService {
         audioInfoService.updateAudioInfo(songList);
 
         for (Song song : songList) {
-            song.setPlaylists(List.of(playlistToFill));
+            song.setPlaylists(List.of(playlistToFill)); //TODO gérer les duplicatas quand un titre est dans plusieurs playlists à la fois parce que le service de spotify retourne une nouvelle instance du titre à chaque fois
         }
 
         playlistToFill.setSongList(songList.isEmpty() ? null : songList);

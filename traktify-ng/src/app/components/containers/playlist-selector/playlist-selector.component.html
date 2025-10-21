@@ -1,0 +1,19 @@
+<mat-list role="list">
+  <mat-list-item role="listitem" routerLinkActive="active" routerLink="home">
+    <div style="display:flex;align-items: center;">
+      <mat-icon fontIcon="home"></mat-icon>
+      <span style="padding-left: 10px">
+        Home
+      </span>
+    </div>
+  </mat-list-item>
+
+  @if (this.currentPlaylists$ | async; as playlists) {
+    <mat-list-item *ngFor="let playlist of playlists" role="listitem" routerLinkActive="active"
+                   routerLink="playlist/{{playlist.id}}" (click)="selectPlaylist(playlist)">
+      {{ playlist.name }}
+    </mat-list-item>
+  } @else {
+    <mat-spinner style="margin: 0 auto"></mat-spinner>
+  }
+</mat-list>

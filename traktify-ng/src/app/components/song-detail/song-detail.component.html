@@ -21,12 +21,14 @@
 
       <!-- Energy display -->
       <mat-grid-tile [colspan]="2" [rowspan]="3">
-        <app-property-spinner [size]="70" [value]="song.audioInfo.energy" [label]="'Energy'"></app-property-spinner>
+        <app-property-spinner [size]="70" [value]="song.audioInfo.energy"
+                              [label]="'Energy'"></app-property-spinner>
       </mat-grid-tile>
 
       <!-- Danceability display -->
       <mat-grid-tile [colspan]="2" [rowspan]="3">
-        <app-property-spinner [size]="70" [value]="song.audioInfo.danceability" [label]="'Danceability'"></app-property-spinner>
+        <app-property-spinner [size]="70" [value]="song.audioInfo.danceability"
+                              [label]="'Danceability'"></app-property-spinner>
       </mat-grid-tile>
 
       <!-- Key display -->
@@ -45,6 +47,6 @@
 
     </mat-grid-list>
 
-    <app-match-selector [song]="song"></app-match-selector>
+    <app-match-selector [song]="song!"></app-match-selector>
   </mat-card-content>
 </mat-card>
