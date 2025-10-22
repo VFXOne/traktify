@@ -11,17 +11,19 @@ import java.util.Map;
 @Service
 public class AudioInfoService {
 
+    private final ReccoBeatsApiService reccoBeatsApiService;
     private final AudioInfoRepository audioInfoRepository;
-    private final SpotifyMusicService spotifyMusicService;
 
-    public AudioInfoService(AudioInfoRepository audioInfoRepository, SpotifyMusicService spotifyMusicService) {
+    public AudioInfoService(AudioInfoRepository audioInfoRepository, ReccoBeatsApiService reccoBeatsApiService) {
         this.audioInfoRepository = audioInfoRepository;
-        this.spotifyMusicService = spotifyMusicService;
+        this.reccoBeatsApiService = reccoBeatsApiService;
     }
 
     public void updateAudioInfo(Song song) {
         if (song.getAudioInfo() == null) {
-            AudioInfo audioInfo = spotifyMusicService.getAudioInfoForSong(song);
+            Map<Song, AudioInfo> audioInfoMap = reccoBeatsApiService.getAudioInfoForSongs(List.of(song));
+            AudioInfo audioInfo = audioInfoMap.get(song);
+
             song.setAudioInfo(audioInfo);
             audioInfoRepository.save(audioInfo);
         }
@@ -29,7 +31,7 @@ public class AudioInfoService {
 
     public void updateAudioInfo(List<Song> songs) {
         List<Song> songsToUpdate = songs.stream().filter(s -> s.getAudioInfo() == null).toList();
-        Map<Song, AudioInfo> audioInfos = spotifyMusicService.getAudioInfoForSongs(songsToUpdate);
+        Map<Song, AudioInfo> audioInfos = reccoBeatsApiService.getAudioInfoForSongs(songsToUpdate);
 
         audioInfos.forEach((song, audioInfo) -> {
             song.setAudioInfo(audioInfo);

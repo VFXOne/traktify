@@ -1,14 +1,14 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, computed, Input, OnInit, Signal} from '@angular/core';
 import {MatChipListbox, MatChipOption} from '@angular/material/chips';
 import {MatAccordion, MatExpansionPanel, MatExpansionPanelDescription, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {NgForOf, NgIf} from '@angular/common';
 import {MatButton} from '@angular/material/button';
 import {FormArray, FormControl, FormGroup, Validators} from '@angular/forms';
-import {GroupService} from '../../../services/group.service';
 import {Playlist} from '../../../models/playlist.model';
 import {PlaylistGroup} from '../../../models/playlist-group';
 import {RouterLink} from '@angular/router';
+import {GroupEditingService} from '../../../facades/group-editing.facade';
 
 @Component({
   selector: 'app-filter-selector[playlistForm]',
@@ -32,19 +32,13 @@ import {RouterLink} from '@angular/router';
 })
 export class FilterSelectorComponent implements OnInit {
   @Input({required: true}) playlistForm!: FormGroup;
-  groupList: SelectablePlaylistGroup[] = [];
+  groupList: Signal<SelectablePlaylistGroup[]> = computed(() => this.groupService.groups().map(g => this.getSelectableGroup(g)));
 
-  constructor(private groupService: GroupService) {
+  constructor(private groupService: GroupEditingService) {
   }
 
   ngOnInit(): void {
-    this.groupService.getGroups().subscribe(groups => {
-      this.groupList = groups.map(g => this.getSelectableGroup(g));
-
-      this.groupList?.forEach(g => g.playlists.forEach(p => { //Par défaut toutes les playlists sont sélectionnées.
-        this.addSelectedPlaylistToForm(p);
-      }));
-    });
+    this.groupService.loadGroups();
   }
 
   selectAllPlaylists(event: any, group: SelectablePlaylistGroup) {
@@ -128,7 +122,7 @@ export class FilterSelectorComponent implements OnInit {
     return {
       selected: true,
       playlist: p
-    }
+    };
   }
 }
 

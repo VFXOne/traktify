@@ -70,6 +70,7 @@ public class SpotifyMusicService {
         return songList;
     }
 
+    @Deprecated //La fonction getAudioFeaturesForTrack() a été deprecated par Spotify
     public AudioInfo getAudioInfoForSong(Song song) {
         AtomicReference<AudioInfo> audioInfoRef = new AtomicReference<>();
 
@@ -85,6 +86,7 @@ public class SpotifyMusicService {
         return audioInfoRef.get();
     }
 
+    @Deprecated //La fonction getAudioFeaturesForSeveralTracks() a été deprecated par Spotify
     public Map<Song, AudioInfo> getAudioInfoForSongs(List<Song> songs) {
         AtomicReference<Map<Song, AudioInfo>> audioInfoMap = new AtomicReference<>(new HashMap<>());
 
@@ -93,7 +95,7 @@ public class SpotifyMusicService {
             callWithRefreshToken(() -> {
                 String[] requestIDs = songIDs.toArray(String[]::new);
                 GetAudioFeaturesForSeveralTracksRequest spotifyAudioFeaturesRequest = spotifyApiService.getApi().getAudioFeaturesForSeveralTracks(requestIDs).build();
-                AudioFeatures[] audioFeatures = spotifyAudioFeaturesRequest.execute();
+                AudioFeatures[] audioFeatures = spotifyAudioFeaturesRequest.execute(); // https://community.spotify.com/t5/Spotify-for-Developers/Spotify-Web-API-403-Forbidden-on-v1-audio-features-even-with/m-p/7065497#M18510
 
                 for (AudioFeatures audioFeature : audioFeatures) {
                     AudioInfo audioInfo = mapToAudioInfo(audioFeature);

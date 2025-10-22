@@ -1,3 +1,15 @@
+.settings-container,
+.settings-content,
+.settings-tab,
+app-group-settings,
+app-group-settings > .container {
+  height: 100%;
+}
+
+::ng-deep .mat-mdc-tab-body-wrapper {
+  height: 100%;
+}
+
 .settings-tab {
   padding-left: 16px;
   padding-right: 16px;

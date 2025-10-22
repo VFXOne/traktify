@@ -2,6 +2,7 @@ package ch.calu.traktify_backend.models;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -70,5 +71,12 @@ public class Song {
 
     public void setPlaylists(List<Playlist> playlists) {
         this.playlists = playlists;
+    }
+
+    public void addPlaylist(Playlist playlist) {
+        if (this.playlists == null) {
+            this.playlists = new ArrayList<>();
+        }
+        playlists.add(playlist);
     }
 }

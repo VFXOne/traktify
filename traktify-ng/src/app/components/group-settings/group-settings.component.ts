@@ -2,7 +2,6 @@ import {Component, computed, inject, OnInit, Signal, signal, WritableSignal} fro
 import {MatAccordion, MatExpansionPanel, MatExpansionPanelDescription, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
 import {MatFabButton, MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
-import {GroupService} from '../../services/group.service';
 import {PlaylistGroup} from '../../models/playlist-group';
 import {MatListOption, MatListSubheaderCssMatStyler, MatSelectionList} from '@angular/material/list';
 import {Playlist} from '../../models/playlist.model';
@@ -16,6 +15,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {DeleteGroupDialogComponent, EditGroupDialogComponent, NewGroupDialogComponent} from './group-settings-dialogs.component';
 import {first} from 'rxjs';
+import {GroupEditingService} from '../../facades/group-editing.facade';
 
 export interface DialogData {
   name: string;
@@ -50,13 +50,13 @@ export interface DialogData {
   styleUrl: './group-settings.component.scss'
 })
 export class GroupSettingsComponent implements OnInit {
-  readonly groupList: WritableSignal<PlaylistGroup[]> = signal([]);
+  readonly groupList = this.groupService.groups;
   readonly playlists: WritableSignal<Playlist[]> = signal([]);
 
   readonly paginatedPlaylists: Signal<Playlist[]>;
 
   readonly pageIndex = signal(0);
-  readonly pageSize = signal(5)
+  readonly pageSize = signal(5);
   readonly pageLength = computed(() => this.playlists().length);
 
   readonly searchString = signal('');
@@ -64,8 +64,7 @@ export class GroupSettingsComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   readonly snackbar = inject(MatSnackBar);
 
-  //TODO séparer entre une façade et un composant d'affichage
-  constructor(private groupService: GroupService, private playlistService: PlaylistService) {
+  constructor(private playlistService: PlaylistService, private groupService: GroupEditingService) {
     this.paginatedPlaylists = computed(() => {
       let index = 0, startIndex = this.pageIndex() * this.pageSize(), endIndex = startIndex + this.pageSize();
 
@@ -79,7 +78,7 @@ export class GroupSettingsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.groupService.getGroups().pipe(first()).subscribe(g => this.groupList.set(g));
+    this.groupService.loadGroups();
 
     this.playlistService.getPlaylists().pipe(first()).subscribe(p => {
       this.playlists.set(p);
@@ -103,68 +102,7 @@ export class GroupSettingsComponent implements OnInit {
     this.searchString.set('');
   }
 
-  openNewGroupDialog(): void {
-    const dialogRef = this.dialog.open(NewGroupDialogComponent, {});
-
-    dialogRef.afterClosed().subscribe(newName => {
-      if (newName !== undefined) {
-        this.addNewGroup({
-          id: '',
-          name: newName,
-          playlists: []
-        });
-      }
-    });
-  }
-
-  openEditGroupDialog(event: Event, group: PlaylistGroup): void {
-    event.stopPropagation();
-
-    const dialogRef = this.dialog.open(EditGroupDialogComponent, {data: {name: group.name}});
-    dialogRef.afterClosed().subscribe(newName => {
-      let oldName = group.name;
-      if (oldName !== newName) {
-        this.groupService.editGroup(group).subscribe({
-          next: (ok) => {
-            if (ok) {
-              group.name = newName;
-              this.snackBarNotif('Name edited!');
-            } else {
-              this.snackBarNotif('An error occurred');
-            }
-          },
-          error: (err) => {
-            console.log(err);
-            this.snackBarNotif('An error occurred, see logs');
-          }
-        });
-      }
-    });
-  }
-
-  openDeleteGroupDialog(event: Event, group: PlaylistGroup): void {
-    event.stopPropagation();
-
-    const dialogRef = this.dialog.open(DeleteGroupDialogComponent, {data: {name: group.name}});
-    dialogRef.afterClosed().subscribe(_ => {
-      this.groupService.deleteGroup(group).subscribe({
-        next: (ok) => {
-          if (ok) {
-            this.groupService.getGroups().subscribe(g => this.groupList.set(g));
-            this.snackBarNotif('Group deleted!');
-          } else {
-            this.snackBarNotif('An error occurred');
-          }
-        },
-        error: (err) => {
-          console.log(err);
-          this.snackBarNotif('An error occurred, see logs');
-        }
-      });
-    });
-  }
-
-  onPlaylistSelectionChange(playlist: Playlist, group: PlaylistGroup, selected: boolean): void {
+  async onPlaylistSelectionChange(playlist: Playlist, group: PlaylistGroup, selected: boolean) {
     if (selected) {
       this.addPlaylistToGroup(group, playlist);
     } else {
@@ -172,31 +110,68 @@ export class GroupSettingsComponent implements OnInit {
     }
   }
 
-  addNewGroup(group: PlaylistGroup): void {
-    this.groupService.createGroup(group).subscribe({
-      next: (newGroup) => {
-        this.groupList().push(newGroup);
-        this.snackBarNotif('New group created!');
-        return newGroup;
-      },
-      error: (err) => {
-        console.log(err);
+  openNewGroupDialog() {
+    const dialogRef = this.dialog.open(NewGroupDialogComponent, {});
+    dialogRef.afterClosed().subscribe(async newName => {
+      if (newName !== undefined) {
+        try {
+          await this.groupService.createGroup(newName);
+          this.snackBarNotif('Group created successfully!');
+        } catch (error) {
+          this.snackBarNotif('An error occurred');
+        }
+      }
+    });
+  }
+
+  openEditGroupDialog(event: Event, group: PlaylistGroup) {
+    event.stopPropagation();
+
+    const dialogRef = this.dialog.open(EditGroupDialogComponent, {data: {name: group.name}});
+    dialogRef.afterClosed().subscribe(async newName => {
+      if (group.name !== newName) {
+        try {
+          group.name = newName;
+          await this.groupService.renameGroup(group);
+          this.snackBarNotif('Name edited!');
+        } catch (error) {
+          this.snackBarNotif('An error occurred');
+        }
+      }
+    });
+  }
+
+  openDeleteGroupDialog(event: Event, group: PlaylistGroup) {
+    event.stopPropagation();
+
+    const dialogRef = this.dialog.open(DeleteGroupDialogComponent, {data: {name: group.name}});
+    dialogRef.afterClosed().subscribe(async _ => {
+      try {
+        await this.groupService.deleteGroup(group);
+        this.snackBarNotif('Group deleted!');
+      } catch (error) {
         this.snackBarNotif('An error occurred');
       }
     });
   }
 
-  addPlaylistToGroup(group: PlaylistGroup, playlist: Playlist): void {
+  async addPlaylistToGroup(group: PlaylistGroup, playlist: Playlist) {
     if (!group.playlists) {
       group.playlists = [];
     }
-    group.playlists.push(playlist);
-    this.groupService.addPlaylistToGroup(group, playlist);
+    try {
+      await this.groupService.addPlaylistToGroup(playlist, group);
+    } catch (error) {
+      this.snackBarNotif('An error occurred');
+    }
   }
 
-  removePlaylistFromGroup(group: PlaylistGroup, playlist: Playlist): void {
-    group.playlists = group.playlists.filter(p => p.name !== playlist.name);
-    this.groupService.deletePlaylistFromGroup(group, playlist);
+  async removePlaylistFromGroup(group: PlaylistGroup, playlist: Playlist) {
+    try {
+      await this.groupService.removePlaylistFromGroup(playlist, group);
+    } catch (error) {
+      this.snackBarNotif('An error occurred');
+    }
   }
 
   private snackBarNotif(message: string): void {

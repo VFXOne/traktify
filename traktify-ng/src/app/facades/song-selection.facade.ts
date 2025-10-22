@@ -7,7 +7,7 @@ import {SongService} from '../services/song.service';
 export class SongSelectionService {
   private _selectedSong = signal<Song | null>(null);
 
-  readonly selectedSong$ = this._selectedSong;
+  readonly selectedSong$ = this._selectedSong.asReadonly();
   readonly isSongSelected = computed(() => this._selectedSong !== null);
 
   constructor(private songService: SongService) {
