@@ -27,6 +27,7 @@ export class SongDetailDialogComponent {
           ...this.dialogConfig,
           data: song
         })
+          .backdropClick().subscribe(() => this.songsSelection.unselectSong());
       }
     })
   }

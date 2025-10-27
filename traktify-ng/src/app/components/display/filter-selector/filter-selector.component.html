@@ -1,5 +1,4 @@
 <div class="horizontal-layout">
-
   <h3 *ngIf="groupList().length < 1; else displayGroups">
     No group is configured. Please go to the <a routerLink="/settings">settings</a> to create one.
   </h3>
@@ -34,3 +33,5 @@
     </mat-accordion>
   </ng-template>
 </div>
+
+<button mat-flat-button (click)="goMatch()">Match</button>

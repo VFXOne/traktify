@@ -35,18 +35,16 @@ public class ReccoBeatsApiService {
 
         for (int i = 0; i < songs.size(); i += MAX_IDS_PER_REQUEST) {
             int end = Math.min(i + MAX_IDS_PER_REQUEST, songs.size());
-            List<Song> batch = songs.subList(i, end);
-            Map<Song, AudioInfo> songInfo = Map.of();
+            List<Song> songSubList = songs.subList(i, end);
 
             try {
-                songInfo = getAudioInfoFromApi(batch);
+                Map<Song, AudioInfo> songInfo = getAudioInfoFromApi(songSubList);
+                result.putAll(songInfo);
             }
             catch (IOException e) {
 //                throw new RuntimeException(e);
                 //TODO Handle or log error
             }
-
-            result.putAll(songInfo);
         }
 
         return result;
@@ -73,7 +71,8 @@ public class ReccoBeatsApiService {
         conn.disconnect();
 
         for (JSONObject feature : responseContent) {
-            String id = feature.getString("id");
+            String href = feature.getString("href");
+            String id = href.substring(href.lastIndexOf("/") + 1);
             float tempo = feature.getFloat("tempo");
             float valence = feature.getFloat("valence");
             float acousticness = feature.getFloat("acousticness");

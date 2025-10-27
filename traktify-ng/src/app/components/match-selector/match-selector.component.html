@@ -1,15 +1,12 @@
 <h3>
   Match settings
 </h3>
-<form [formGroup]="matchForm" (ngSubmit)="onSubmit()">
-  <app-filter-selector [playlistForm]="matchForm"></app-filter-selector>
 
-  <button mat-flat-button type="submit">Match</button>
-</form>
+<app-filter-selector></app-filter-selector>
 
 <mat-divider [inset]="true"></mat-divider>
 
-<table mat-table #matchTable [dataSource]="matchList" matSort (matSortChange)="sortTable($event)">
+<table mat-table #matchTable [dataSource]="matchList()" matSort (matSortChange)="sortTable($event)">
   <!-- Name column -->
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>

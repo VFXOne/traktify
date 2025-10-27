@@ -64,10 +64,13 @@ public class MatchService {
         return otherSongs.stream().map(s -> new ComparableSong(
                 getMatchingScore(songToMatch.getAudioInfo(), s.getAudioInfo()),
                 s
-        )).collect(Collectors.toSet());
+        )).filter(c -> c.matchScore >= 0).collect(Collectors.toSet());
     }
 
     private float getMatchingScore(AudioInfo songToMatch, AudioInfo otherSong) {
+        if (songToMatch == null || otherSong == null) {
+            return -1;
+        }
         float camelotScore = computeCamelotScore(songToMatch.getCamelotKey(), otherSong.getCamelotKey());
         float tempoScore = computeTempoScore(songToMatch.getTempo(), otherSong.getTempo());
 

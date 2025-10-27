@@ -24,8 +24,10 @@ public class AudioInfoService {
             Map<Song, AudioInfo> audioInfoMap = reccoBeatsApiService.getAudioInfoForSongs(List.of(song));
             AudioInfo audioInfo = audioInfoMap.get(song);
 
-            song.setAudioInfo(audioInfo);
-            audioInfoRepository.save(audioInfo);
+            if (audioInfo != null) {
+                song.setAudioInfo(audioInfo);
+                audioInfoRepository.save(audioInfo);
+            }
         }
     }
 

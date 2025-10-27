@@ -16,7 +16,7 @@ export class GroupEditingService {
   constructor(private groupService: GroupService) {
   }
 
-  loadGroups(): void {
+   loadGroups(): void {
     this._loading.set(true);
 
     this.groupService.getGroups().subscribe({
