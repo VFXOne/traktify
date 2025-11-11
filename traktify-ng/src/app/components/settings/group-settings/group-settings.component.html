@@ -1,4 +1,4 @@
-<div class="container">
+<div>
   @if (groupList().length < 1) {
     <h3>
       There is no group. Create one to be able to edit it.
@@ -53,8 +53,8 @@
   }
 
 
-  <div>
-    <button mat-fab aria-label="Add group" class="add-button" (click)="openNewGroupDialog()">
+  <div class="add-button">
+    <button mat-fab aria-label="Add group" (click)="openNewGroupDialog()">
       <mat-icon>add_circle</mat-icon>
     </button>
   </div>

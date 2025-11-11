@@ -49,6 +49,14 @@ export class LoginManagerService {
     return this.http.get<boolean>(this.url + 'isLoggedIn');
   }
 
+  isSetupComplete(): Observable<boolean> {
+    return this.http.get<boolean>(this.url + 'isSetupComplete');
+  }
+
+  completeSetup(): Observable<any> {
+    return this.http.put(this.url + 'completeSetup', null);
+  }
+
   private getUsername(): Observable<any> {
     return this.http.get(this.url + 'get-username', {responseType: 'text'});
   }

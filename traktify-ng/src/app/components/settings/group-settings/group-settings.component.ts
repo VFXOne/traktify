@@ -2,9 +2,9 @@ import {Component, computed, inject, OnInit, Signal, signal} from '@angular/core
 import {MatAccordion, MatExpansionPanel, MatExpansionPanelDescription, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
 import {MatFabButton, MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
-import {PlaylistGroup} from '../../models/playlist-group';
+import {PlaylistGroup} from '../../../models/playlist-group';
 import {MatListOption, MatListSubheaderCssMatStyler, MatSelectionList} from '@angular/material/list';
-import {Playlist} from '../../models/playlist.model';
+import {Playlist} from '../../../models/playlist.model';
 import {NgForOf} from '@angular/common';
 import {MatFormField, MatLabel, MatSuffix} from '@angular/material/form-field';
 import {MatInput} from '@angular/material/input';
@@ -13,8 +13,8 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {DeleteGroupDialogComponent, EditGroupDialogComponent, NewGroupDialogComponent} from './group-settings-dialogs.component';
-import {GroupEditingService} from '../../facades/group-editing.facade';
-import {PlaylistSearchService} from '../../facades/playlist-search.facade';
+import {GroupEditingService} from '../../../facades/group-editing.facade';
+import {PlaylistSearchService} from '../../../facades/playlist-search.facade';
 
 export interface DialogData {
   name: string;

@@ -1,0 +1,42 @@
+<mat-card>
+  <mat-horizontal-stepper [linear]="true" #stepper>
+    <mat-step [completed]="this.isLoggedIn()">
+        <ng-template matStepLabel>Connect to Spotify</ng-template>
+        <ng-template matStepContent>
+          <app-login-service></app-login-service>
+          <div class="actions">
+            <button mat-button matStepperNext color="primary" [disabled]="!this.isLoggedIn()">
+              Next
+            </button>
+          </div>
+        </ng-template>
+    </mat-step>
+
+    <mat-step>
+      <ng-template matStepLabel>Choose playlists to synchronize</ng-template>
+      <ng-template matStepContent>
+        TODO
+        <div class="actions">
+          <button mat-button matStepperNext color="primary">
+            Next
+          </button>
+        </div>
+      </ng-template>
+    </mat-step>
+
+    <mat-step>
+      <ng-template matStepLabel>Create playlist groups</ng-template>
+      <ng-template matStepContent>
+        <app-group-settings></app-group-settings>
+        <div class="actions">
+          <button mat-button matStepperPrevious>
+            Back
+          </button>
+          <button mat-raised-button color="primary" (click)="finishSetup()" [disabled]="this.done()">
+            Done
+          </button>
+        </div>
+      </ng-template>
+    </mat-step>
+  </mat-horizontal-stepper>
+</mat-card>
