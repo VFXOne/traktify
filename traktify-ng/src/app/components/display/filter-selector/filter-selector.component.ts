@@ -99,7 +99,7 @@ export class FilterSelectorComponent implements OnInit {
   }
 
   goMatch() {
-    this.matchingService.getMatchingSongs(this.songService.selectedSong$()!, this.getSelectedPlaylists());
+    void this.matchingService.getMatchingSongs(this.songService.selectedSong$()!, this.getSelectedPlaylists());
   }
 }
 

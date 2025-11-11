@@ -3,7 +3,6 @@ package ch.calu.traktify_backend.controllers;
 import ch.calu.traktify_backend.services.SpotifyApiService;
 import ch.calu.traktify_backend.services.SpotifyMusicService;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -15,11 +14,13 @@ public class AuthController {
 
     public static final String homeURI = "http://localhost:4202/home";
 
-    @Autowired
-    SpotifyApiService spotifyApiService;
+    private final SpotifyApiService spotifyApiService;
+    private final SpotifyMusicService spotifyMusicService;
 
-    @Autowired
-    SpotifyMusicService spotifyMusicService;
+    public AuthController(SpotifyApiService spotifyApiService, SpotifyMusicService spotifyMusicService) {
+        this.spotifyApiService = spotifyApiService;
+        this.spotifyMusicService = spotifyMusicService;
+    }
 
     @GetMapping("isLoggedIn")
     public boolean isLoggedIn() {

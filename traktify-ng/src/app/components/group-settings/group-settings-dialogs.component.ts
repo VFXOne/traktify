@@ -68,12 +68,9 @@ export class EditGroupDialogComponent {
   imports: [
     MatDialogTitle,
     MatDialogContent,
-    MatFormField,
-    MatInput,
     MatDialogActions,
     MatButton,
     MatDialogClose,
-    MatLabel,
     FormsModule,
     CdkTrapFocus
   ]

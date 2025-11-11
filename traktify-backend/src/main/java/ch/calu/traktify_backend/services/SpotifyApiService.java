@@ -1,7 +1,6 @@
 package ch.calu.traktify_backend.services;
 
-import ch.calu.traktify_backend.models.Settings;
-import ch.calu.traktify_backend.repositories.SettingsRepository;
+import jakarta.annotation.PostConstruct;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,10 +29,19 @@ public class SpotifyApiService {
     private static final String redirectURI = "http://localhost:8082/backend/get-user-code";
     protected SpotifyApi api = null;
 
-    private final SettingsRepository settingsRepository;
+    private final SettingsService settingsService;
 
-    public SpotifyApiService(SettingsRepository settingsRepository) {
-        this.settingsRepository = settingsRepository;
+    public SpotifyApiService(SettingsService settingsService) {
+        this.settingsService = settingsService;
+    }
+
+    @PostConstruct
+    public void init() {
+        this.api = new SpotifyApi.Builder()
+                .setClientId(clientID)
+                .setClientSecret(clientSecret)
+                .setRedirectUri(SpotifyHttpManager.makeUri(redirectURI))
+                .build();
     }
 
     public SpotifyApi getApi() {
@@ -45,10 +53,9 @@ public class SpotifyApiService {
     }
 
     public String doLogin() {
-        initApi();
-        Settings settings = settingsRepository.getSettings();
+        String spotifyToken = settingsService.getSpotifyToken();
 
-        if (settings.getSpotifyApiRefreshToken() == null) {
+        if (spotifyToken == null) {
             AuthorizationCodeUriRequest autRequest = api.authorizationCodeUri()
                     .scope("user-read-private,playlist-read-private,playlist-read-collaborative,user-library-read")
                     .show_dialog(true)
@@ -58,9 +65,7 @@ public class SpotifyApiService {
             return uri.toString();
         }
         else {
-            String refreshToken = settings.getSpotifyApiRefreshToken();
-            initApi();
-            api.setRefreshToken(refreshToken);
+            api.setRefreshToken(spotifyToken);
             refreshToken();
 
             isLoggedIn = true;
@@ -77,9 +82,7 @@ public class SpotifyApiService {
             api.setAccessToken(authCredentials.getAccessToken());
             api.setRefreshToken(authCredentials.getRefreshToken());
 
-            Settings settings = settingsRepository.getSettings();
-            settings.setSpotifyApiRefreshToken(authCredentials.getRefreshToken());
-            settingsRepository.save(settings);
+            settingsService.setSpotifyToken(authCredentials.getRefreshToken());
 
             System.out.println("Token expires in: " + authCredentials.getExpiresIn());
             isLoggedIn = true;

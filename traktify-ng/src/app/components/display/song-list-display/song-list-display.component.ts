@@ -51,7 +51,7 @@ export class SongListDisplayComponent implements OnInit {
   }
 
   onSongClick(songID: string): void {
-    this.songSelectionService.selectSongByID(songID);
+    void this.songSelectionService.selectSongByID(songID);
   }
 
   drop(event: CdkDragDrop<string>) {
