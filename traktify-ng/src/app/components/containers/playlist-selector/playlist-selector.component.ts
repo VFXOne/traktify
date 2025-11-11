@@ -1,13 +1,13 @@
-import {Component} from '@angular/core';
-import {PlaylistService} from '../../../services/playlist.service';
+import {Component, OnInit} from '@angular/core';
 import {MatList, MatListItem} from '@angular/material/list';
 import {Playlist} from '../../../models/playlist.model';
 import {RouterLink, RouterLinkActive} from '@angular/router';
 import {MatIcon} from '@angular/material/icon';
-import {AsyncPipe, NgForOf} from '@angular/common';
+import {NgForOf} from '@angular/common';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
-import {Observable} from 'rxjs';
 import {PlaylistSelectionService} from '../../../facades/playlist-selection.facade';
+import {LoginService} from '../../../facades/login.facade';
+import {PlaylistSearchService} from '../../../facades/playlist-search.facade';
 
 @Component({
   selector: 'app-playlist-selector',
@@ -19,18 +19,23 @@ import {PlaylistSelectionService} from '../../../facades/playlist-selection.faca
     RouterLink,
     MatIcon,
     NgForOf,
-    MatProgressSpinner,
-    AsyncPipe
+    MatProgressSpinner
   ],
   templateUrl: './playlist-selector.component.html',
   styleUrl: './playlist-selector.component.scss'
 })
-export class PlaylistSelectorComponent {
+export class PlaylistSelectorComponent implements OnInit {
 
-  currentPlaylists$: Observable<Playlist[]>;
+  playlistsLoading = this.playlistService.loading;
+  currentPlaylists = this.playlistService.playlists;
 
-  constructor(playlistService: PlaylistService, private playlistSelection : PlaylistSelectionService) {
-    this.currentPlaylists$ = playlistService.getPlaylists();
+  isLoggedIn = this.loginService.isLoggedIn;
+
+  constructor(private playlistService: PlaylistSearchService, private playlistSelection: PlaylistSelectionService, private loginService: LoginService) {
+  }
+
+  ngOnInit(): void {
+    void this.playlistService.initPlaylists();
   }
 
   selectPlaylist(playlist: Playlist) {

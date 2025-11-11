@@ -1,11 +1,10 @@
-import {Component, computed, inject, OnInit, Signal, signal, WritableSignal} from '@angular/core';
+import {Component, computed, inject, OnInit, Signal, signal} from '@angular/core';
 import {MatAccordion, MatExpansionPanel, MatExpansionPanelDescription, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
 import {MatFabButton, MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {PlaylistGroup} from '../../models/playlist-group';
 import {MatListOption, MatListSubheaderCssMatStyler, MatSelectionList} from '@angular/material/list';
 import {Playlist} from '../../models/playlist.model';
-import {PlaylistService} from '../../services/playlist.service';
 import {NgForOf} from '@angular/common';
 import {MatFormField, MatLabel, MatSuffix} from '@angular/material/form-field';
 import {MatInput} from '@angular/material/input';
@@ -14,8 +13,8 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {DeleteGroupDialogComponent, EditGroupDialogComponent, NewGroupDialogComponent} from './group-settings-dialogs.component';
-import {first} from 'rxjs';
 import {GroupEditingService} from '../../facades/group-editing.facade';
+import {PlaylistSearchService} from '../../facades/playlist-search.facade';
 
 export interface DialogData {
   name: string;
@@ -51,7 +50,7 @@ export interface DialogData {
 })
 export class GroupSettingsComponent implements OnInit {
   readonly groupList = this.groupService.groups;
-  readonly playlists: WritableSignal<Playlist[]> = signal([]);
+  readonly playlists = this.playlistService.playlists;
 
   readonly paginatedPlaylists: Signal<Playlist[]>;
 
@@ -64,7 +63,7 @@ export class GroupSettingsComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   readonly snackbar = inject(MatSnackBar);
 
-  constructor(private playlistService: PlaylistService, private groupService: GroupEditingService) {
+  constructor(private playlistService: PlaylistSearchService, private groupService: GroupEditingService) {
     this.paginatedPlaylists = computed(() => {
       let index = 0, startIndex = this.pageIndex() * this.pageSize(), endIndex = startIndex + this.pageSize();
 
@@ -80,9 +79,7 @@ export class GroupSettingsComponent implements OnInit {
   ngOnInit() {
     this.groupService.loadGroups();
 
-    this.playlistService.getPlaylists().pipe(first()).subscribe(p => {
-      this.playlists.set(p);
-    });
+    void this.playlistService.initPlaylists();
   }
 
   pageChange(event: PageEvent) {
@@ -104,9 +101,9 @@ export class GroupSettingsComponent implements OnInit {
 
   async onPlaylistSelectionChange(playlist: Playlist, group: PlaylistGroup, selected: boolean) {
     if (selected) {
-      this.addPlaylistToGroup(group, playlist);
+      await this.addPlaylistToGroup(group, playlist);
     } else {
-      this.removePlaylistFromGroup(group, playlist);
+      await this.removePlaylistFromGroup(group, playlist);
     }
   }
 

@@ -8,12 +8,15 @@
     </div>
   </mat-list-item>
 
-  @if (this.currentPlaylists$ | async; as playlists) {
-    <mat-list-item *ngFor="let playlist of playlists" role="listitem" routerLinkActive="active"
-                   routerLink="playlist/{{playlist.id}}" (click)="selectPlaylist(playlist)">
-      {{ playlist.name }}
-    </mat-list-item>
-  } @else {
-    <mat-spinner style="margin: 0 auto"></mat-spinner>
+  @if (this.isLoggedIn()) {
+    @if (this.playlistsLoading()) {
+      <mat-spinner style="margin: 0 auto"></mat-spinner>
+    } @else {
+      <mat-list-item *ngFor="let playlist of this.currentPlaylists()" role="listitem" routerLinkActive="active"
+                     routerLink="playlist/{{playlist.id}}" (click)="selectPlaylist(playlist)">
+        {{ playlist.name }}
+      </mat-list-item>
+    }
   }
+
 </mat-list>
