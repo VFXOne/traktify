@@ -1,20 +1,31 @@
-import {ApplicationConfig, provideZoneChangeDetection} from '@angular/core';
+import {APP_INITIALIZER, ApplicationConfig, provideZoneChangeDetection} from '@angular/core';
 import {provideRouter} from '@angular/router';
 
 import {routes} from './app.routes';
 import {provideClientHydration} from '@angular/platform-browser';
 import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 import {provideHttpClient, withFetch} from '@angular/common/http';
-import {LoginManagerService} from './services/login.service';
+import {LoginService} from './facades/login.facade';
+
+export function initApp(loginService: LoginService) {
+  return () => loginService.startupLogin();
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection(
-      {eventCoalescing: true}),
+      {eventCoalescing: true}
+    ),
     provideRouter(routes),
     provideClientHydration(),
     provideAnimationsAsync(),
     provideHttpClient(withFetch()),
-    LoginManagerService
+    LoginService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initApp,
+      deps: [LoginService],
+      multi: true
+    }
   ]
 };

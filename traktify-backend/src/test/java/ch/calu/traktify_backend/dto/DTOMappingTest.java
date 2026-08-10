@@ -1,7 +1,7 @@
 package ch.calu.traktify_backend.dto;
 
-import ch.calu.traktify_backend.models.AudioInfo;
-import ch.calu.traktify_backend.models.Song;
+import ch.calu.traktify_backend.models.db.AudioInfo;
+import ch.calu.traktify_backend.models.db.Song;
 import ch.calu.traktify_backend.models.dto.AudioInfoDTO;
 import ch.calu.traktify_backend.models.dto.DTOMapper;
 import ch.calu.traktify_backend.models.dto.SongDTO;

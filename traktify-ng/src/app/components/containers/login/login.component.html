@@ -5,13 +5,11 @@
     </h3>
   } @else {
     @if (this.loginLoading()) {
+      <mat-spinner></mat-spinner>
+    } @else {
       <div>
         <button mat-flat-button class="big-button" (click)="login()">Login</button>
       </div>
-    } @else {
-      <ng-template>
-        <mat-spinner></mat-spinner>
-      </ng-template>
     }
   }
 </div>

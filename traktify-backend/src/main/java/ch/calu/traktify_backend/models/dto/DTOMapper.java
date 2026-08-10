@@ -1,9 +1,10 @@
 package ch.calu.traktify_backend.models.dto;
 
-import ch.calu.traktify_backend.models.AudioInfo;
-import ch.calu.traktify_backend.models.PlaylistGroup;
-import ch.calu.traktify_backend.models.Playlist;
-import ch.calu.traktify_backend.models.Song;
+import ch.calu.traktify_backend.models.SpotifyPlaylist;
+import ch.calu.traktify_backend.models.db.AudioInfo;
+import ch.calu.traktify_backend.models.db.Playlist;
+import ch.calu.traktify_backend.models.db.PlaylistGroup;
+import ch.calu.traktify_backend.models.db.Song;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -24,10 +25,19 @@ public interface DTOMapper {
     GroupDTO toGroupDTO(PlaylistGroup playlistGroup);
 
     @Mapping(target = "id", source = "spotifyID")
-    @Mapping(target = "songList", ignore = true)
-    PlaylistDTO toPlaylistDTOWithoutSongs(Playlist playlist);
+    PlaylistDisplayDTO toPlaylistDTOWithoutSongs(Playlist playlist);
 
-    List<PlaylistDTO> mapToPlaylistDTOList(List<Playlist> playlists);
+    @Mapping(target = "id", source = "spotifyID")
+    @Mapping(target = "songList", source = "songList")
+    PlaylistWithSongsDTO toPlaylistDTOWithSongs(Playlist playlist);
+
+    List<PlaylistWithSongsDTO> mapToPlaylistDTOList(List<Playlist> playlists);
+
+    @Mapping(target = "id", source = "playlist.spotifyID")
+    @Mapping(target = "name", source = "playlist.name")
+    @Mapping(target = "size", source = "playlist.size")
+    @Mapping(target = "isSynchronized", source = "isSynchronized")
+    SynchronizablePlaylistDTO mapToSelectablePlaylistDTO(SpotifyPlaylist playlist, boolean isSynchronized);
 
     @Mapping(target = "id", source = "spotifyID")
     @Mapping(target = "audioInfo", source = "audioInfo", qualifiedByName = "toAudioInfoDTO")
@@ -66,7 +76,7 @@ public interface DTOMapper {
     }
 
     @Named("playlistSetToList")
-    default List<PlaylistDTO> mapPlaylistSetToPlaylistDTOList(Set<Playlist> playlists) {
+    default List<PlaylistWithSongsDTO> mapPlaylistSetToPlaylistDTOList(Set<Playlist> playlists) {
         return this.mapToPlaylistDTOList(playlists.stream().toList());
     }
 }

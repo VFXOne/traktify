@@ -1,10 +1,9 @@
 package ch.calu.traktify_backend.models.dto;
 
-import java.util.List;
-
-public record PlaylistDTO(
+public record SynchronizablePlaylistDTO(
         String name,
         String id,
-        List<SongDTO> songList
+        int size,
+        boolean isSynchronized
 ) {
 }

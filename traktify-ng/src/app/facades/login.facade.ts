@@ -17,7 +17,7 @@ export class LoginService {
   async checkLogin(): Promise<boolean> {
     try {
       this._loading.set(true);
-      const isLoggedIn = await firstValueFrom(this.loginService.isLoggedIn());
+      const isLoggedIn = await firstValueFrom(this.loginService.loadSession());
 
       this._isLoggedIn.set(isLoggedIn);
       this._loading.set(false);
@@ -35,13 +35,18 @@ export class LoginService {
     try {
       this._loading.set(true);
 
-      const username = await firstValueFrom(this.loginService.login());
-
-      this._loading.set(false);
-
-      console.log('Logged in Spotify as : ' + username);
+      const loginUrl = await firstValueFrom(this.loginService.loginByRedirect());
+      window.location.replace(loginUrl);
     } catch (error) {
       this._loading.set(false);
     }
   }
+
+  async startupLogin(): Promise<void> {
+    try {
+      await this.checkLogin();
+    } catch {
+    }
+  }
+
 }

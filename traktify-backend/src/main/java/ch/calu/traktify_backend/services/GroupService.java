@@ -1,6 +1,6 @@
 package ch.calu.traktify_backend.services;
 
-import ch.calu.traktify_backend.models.PlaylistGroup;
+import ch.calu.traktify_backend.models.db.PlaylistGroup;
 import ch.calu.traktify_backend.models.dto.DTOMapper;
 import ch.calu.traktify_backend.models.dto.GroupDTO;
 import ch.calu.traktify_backend.repositories.GroupRepository;

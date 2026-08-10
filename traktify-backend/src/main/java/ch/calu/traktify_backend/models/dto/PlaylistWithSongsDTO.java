@@ -2,9 +2,9 @@ package ch.calu.traktify_backend.models.dto;
 
 import java.util.List;
 
-public record GroupDTO(
-        String id,
+public record PlaylistWithSongsDTO(
         String name,
-        List<PlaylistWithSongsDTO> playlists
+        String id,
+        List<SongDTO> songList
 ) {
 }

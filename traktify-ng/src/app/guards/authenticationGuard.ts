@@ -6,8 +6,7 @@ export const authenticationGuard: CanActivateFn = async () => {
   const loginService = inject(LoginService);
   const routingService = inject(Router);
 
-  const isLoggedIn = await loginService.checkLogin();
-  if (!isLoggedIn) {
+  if (!loginService.isLoggedIn()) {
     return routingService.createUrlTree(['/login']);
   }
   return true;

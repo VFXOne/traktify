@@ -1,8 +1,9 @@
 package ch.calu.traktify_backend.controllers;
 
+import ch.calu.traktify_backend.models.dto.AuthSessionDTO;
 import ch.calu.traktify_backend.services.SpotifyApiService;
-import ch.calu.traktify_backend.services.SpotifyMusicService;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -15,26 +16,19 @@ public class AuthController {
     public static final String homeURI = "http://localhost:4202/home";
 
     private final SpotifyApiService spotifyApiService;
-    private final SpotifyMusicService spotifyMusicService;
 
-    public AuthController(SpotifyApiService spotifyApiService, SpotifyMusicService spotifyMusicService) {
+    public AuthController(SpotifyApiService spotifyApiService) {
         this.spotifyApiService = spotifyApiService;
-        this.spotifyMusicService = spotifyMusicService;
     }
 
-    @GetMapping("isLoggedIn")
-    public boolean isLoggedIn() {
-        return spotifyApiService.isLoggedIn();
+    @GetMapping("session")
+    public ResponseEntity<AuthSessionDTO> session() {
+        return ResponseEntity.ok(spotifyApiService.checkSession());
     }
 
-    @GetMapping(value = "login", produces = "text/plain")
-    public String spotifyLogin() {
-        if (!isLoggedIn()) {
-            return spotifyApiService.doLogin();
-        }
-        else {
-            return homeURI;
-        }
+    @GetMapping("login-url")
+    public ResponseEntity<String> loginUrl() {
+        return ResponseEntity.ok(spotifyApiService.buildAuthUrl());
     }
 
     @GetMapping(value = "get-user-code")
@@ -43,10 +37,5 @@ public class AuthController {
 
         response.sendRedirect(homeURI);
         return spotifyApiService.getApi().getAccessToken();
-    }
-
-    @GetMapping(value = "get-username", produces = "text/plain")
-    public String getSpotifyUsername() {
-        return spotifyMusicService.getUserID();
     }
 }

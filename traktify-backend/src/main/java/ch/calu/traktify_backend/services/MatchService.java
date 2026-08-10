@@ -1,7 +1,7 @@
 package ch.calu.traktify_backend.services;
 
-import ch.calu.traktify_backend.models.AudioInfo;
-import ch.calu.traktify_backend.models.Song;
+import ch.calu.traktify_backend.models.db.AudioInfo;
+import ch.calu.traktify_backend.models.db.Song;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

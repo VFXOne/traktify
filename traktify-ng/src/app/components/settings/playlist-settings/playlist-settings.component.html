@@ -1,1 +1,31 @@
-<p>playlist-settings works!</p>
+<div mat-subheader>
+  <mat-form-field>
+    <mat-label>Search</mat-label>
+    <input matInput type="text" [(ngModel)]="searchString" (keyup)="onSearchChange($event)">
+    <button matSuffix mat-icon-button (click)="resetSearch()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+</div>
+
+@if (playlistsLoading()) {
+  <mat-spinner></mat-spinner>
+} @else {
+  <mat-selection-list [disabled]="selectionLoading()" (selectionChange)="onSelectionChange($event)">
+    @for (playlist of paginatedPlaylists(); track playlist.id) {
+      <mat-list-option [selected]="playlist.isSynchronized"
+                       [value]="playlist">
+        <span matListItemTitle>{{ playlist.name }}</span>
+        <span matListItemLine>{{ playlist.size }} tracks</span>
+      </mat-list-option>
+    }
+  </mat-selection-list>
+
+  <mat-paginator [length]="pageLength()"
+                 [pageSize]="pageSize()"
+                 [pageIndex]="pageIndex()"
+                 [pageSizeOptions]="[5,10,15,20]"
+                 (page)="pageChange($event)">
+  </mat-paginator>
+}
+

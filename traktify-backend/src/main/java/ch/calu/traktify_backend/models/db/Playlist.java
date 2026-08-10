@@ -1,4 +1,4 @@
-package ch.calu.traktify_backend.models;
+package ch.calu.traktify_backend.models.db;
 
 import jakarta.persistence.*;
 
@@ -54,5 +54,13 @@ public class Playlist {
 
     public void setSongList(List<Song> songList) {
         this.songList = songList;
+    }
+
+    public List<PlaylistGroup> getPlaylistGroups() {
+        return playlistGroups;
+    }
+
+    public void setPlaylistGroups(List<PlaylistGroup> playlistGroups) {
+        this.playlistGroups = playlistGroups;
     }
 }

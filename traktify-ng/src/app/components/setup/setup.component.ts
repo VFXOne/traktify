@@ -8,6 +8,7 @@ import {LoginComponent} from '../containers/login/login.component';
 import {MatButton} from '@angular/material/button';
 import {GroupSettingsComponent} from '../settings/group-settings/group-settings.component';
 import {LoginManagerService} from '../../services/login.service';
+import {PlaylistSettingsComponent} from '../settings/playlist-settings/playlist-settings.component';
 
 @Component({
   selector: 'app-setup',
@@ -23,7 +24,8 @@ import {LoginManagerService} from '../../services/login.service';
     MatButton,
     MatStepperNext,
     GroupSettingsComponent,
-    MatStepperPrevious
+    MatStepperPrevious,
+    PlaylistSettingsComponent
   ],
   templateUrl: './setup.component.html',
   styleUrl: './setup.component.scss'

@@ -1,6 +1,6 @@
 package ch.calu.traktify_backend.controllers;
 
-import ch.calu.traktify_backend.models.Song;
+import ch.calu.traktify_backend.models.db.Song;
 import ch.calu.traktify_backend.models.dto.DTOMapper;
 import ch.calu.traktify_backend.models.dto.SongDTO;
 import ch.calu.traktify_backend.services.MatchService;

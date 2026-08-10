@@ -21,8 +21,8 @@ export class SongSelectionService {
   }
 
   unselectSong(): void {
+    console.log('Song ' + this._selectedSong.name + ' unselected');
     this._selectedSong.set(null);
     this.matchingService.resetMatchingSongs();
-    console.log('Unselect Song');
   }
 }

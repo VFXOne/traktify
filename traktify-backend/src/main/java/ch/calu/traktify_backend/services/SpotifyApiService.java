@@ -1,5 +1,6 @@
 package ch.calu.traktify_backend.services;
 
+import ch.calu.traktify_backend.models.dto.AuthSessionDTO;
 import jakarta.annotation.PostConstruct;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,9 +24,6 @@ public class SpotifyApiService {
     @Value("${spotifyapi.client-id}")
     private String clientID;
 
-    private boolean isLoggedIn = false;
-
-    private static final String ALREADY_LOGGED_IN = "LOGGED_IN";
     private static final String redirectURI = "http://localhost:8082/backend/get-user-code";
     protected SpotifyApi api = null;
 
@@ -48,30 +46,25 @@ public class SpotifyApiService {
         return api;
     }
 
-    public boolean isLoggedIn() {
-        return isLoggedIn;
-    }
-
-    public String doLogin() {
+    public AuthSessionDTO checkSession() {
         String spotifyToken = settingsService.getSpotifyToken();
 
-        if (spotifyToken == null) {
-            AuthorizationCodeUriRequest autRequest = api.authorizationCodeUri()
-                    .scope("user-read-private,playlist-read-private,playlist-read-collaborative,user-library-read")
-                    .show_dialog(true)
-                    .build();
-            final URI uri = autRequest.execute();
-
-            return uri.toString();
+        if (spotifyToken == null || spotifyToken.isEmpty()) {
+            return new AuthSessionDTO(false);
         }
-        else {
-            api.setRefreshToken(spotifyToken);
-            refreshToken();
 
-            isLoggedIn = true;
+        api.setRefreshToken(spotifyToken);
+        return new AuthSessionDTO(refreshToken());
+    }
 
-            return ALREADY_LOGGED_IN;
-        }
+    public String buildAuthUrl() {
+        AuthorizationCodeUriRequest autRequest = api.authorizationCodeUri()
+                .scope("user-read-private,playlist-read-private,playlist-read-collaborative,user-library-read")
+                .show_dialog(true)
+                .build();
+        final URI uri = autRequest.execute();
+
+        return uri.toString();
     }
 
     public void setUserCode(String userCode) {
@@ -85,24 +78,13 @@ public class SpotifyApiService {
             settingsService.setSpotifyToken(authCredentials.getRefreshToken());
 
             System.out.println("Token expires in: " + authCredentials.getExpiresIn());
-            isLoggedIn = true;
         }
         catch (IOException | ParseException | SpotifyWebApiException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected void initApi() {
-        if (api == null) {
-            this.api = new SpotifyApi.Builder()
-                    .setClientId(clientID)
-                    .setClientSecret(clientSecret)
-                    .setRedirectUri(SpotifyHttpManager.makeUri(redirectURI))
-                    .build();
-        }
-    }
-
-    public void refreshToken() {
+    public boolean refreshToken() {
         final AuthorizationCodeRefreshRequest refreshRequest = api.authorizationCodeRefresh()
                 .grant_type("refresh_token")
                 .refresh_token(api.getRefreshToken())
@@ -111,10 +93,19 @@ public class SpotifyApiService {
             AuthorizationCodeCredentials authCredentials = refreshRequest.execute();
 
             api.setAccessToken(authCredentials.getAccessToken());
-            api.setRefreshToken(authCredentials.getRefreshToken());
+
+            String refreshToken = authCredentials.getRefreshToken();
+            if (refreshToken != null && !refreshToken.isEmpty()) {
+                api.setRefreshToken(refreshToken);
+                settingsService.setSpotifyToken(refreshToken);
+                return true;
+            }
+
+            return false;
         }
         catch (ParseException | SpotifyWebApiException | IOException e) {
-            throw new RuntimeException("Something went wrong when refreshing spotify token", e);
+            System.err.println("Something went wrong when refreshing spotify token : " + e.getMessage());
+            return false;
         }
     }
 }

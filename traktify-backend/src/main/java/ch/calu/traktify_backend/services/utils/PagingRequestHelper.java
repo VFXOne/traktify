@@ -15,7 +15,7 @@ public class PagingRequestHelper {
         AbstractDataRequest<Paging<E>> getNextRequest(int previousCount);
     }
 
-    public static <E> List<E> getAllElements(NextProvider<E> nextProvider) {
+    public static <E> List<E> getAllElements(NextProvider<E> nextProvider) throws SpotifyWebApiException {
         List<E> finalList = new ArrayList<>();
 
         int offset = 0;
@@ -34,8 +34,10 @@ public class PagingRequestHelper {
                 finalList.addAll(Arrays.asList(request.getItems()));
             }
             catch (IOException | ParseException | SpotifyWebApiException e) {
-                //throw new RuntimeException(e);
-                System.err.println(e.getMessage());
+                System.err.println("Error when" + e.getMessage());
+                if (e instanceof SpotifyWebApiException spotifyError) {
+                    throw spotifyError;
+                }
             }
         }
 

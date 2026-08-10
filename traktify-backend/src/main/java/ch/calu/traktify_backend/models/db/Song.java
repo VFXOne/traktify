@@ -1,4 +1,4 @@
-package ch.calu.traktify_backend.models;
+package ch.calu.traktify_backend.models.db;
 
 import jakarta.persistence.*;
 

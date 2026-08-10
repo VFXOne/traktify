@@ -2,7 +2,6 @@ import {Component} from '@angular/core';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {MatButton} from '@angular/material/button';
 import {LoginService} from '../../../facades/login.facade';
-import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-login-service',
@@ -18,12 +17,10 @@ export class LoginComponent {
   loginLoading = this.loginService.loading;
   isLoggedIn = this.loginService.isLoggedIn;
 
-  constructor(private loginService: LoginService, private router: Router) {
+  constructor(private loginService: LoginService) {
   }
 
   login() {
-    this.loginService.logIn().then(() => {
-      void this.router.navigateByUrl('/');
-    });
+    void this.loginService.logIn();
   }
 }

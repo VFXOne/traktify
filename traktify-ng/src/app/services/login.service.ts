@@ -1,52 +1,55 @@
 import {Injectable} from '@angular/core';
-import {Observable, of} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../environment';
+import {AuthSession} from '../models/auth-session.model';
+
+class AuthState {
+  session: AuthSession;
+  error?: string;
+
+  constructor(session?: AuthSession, error?: string) {
+    this.session = session ?? {authenticated: false};
+    this.error = error;
+  }
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginManagerService {
+
+  private state$ = new BehaviorSubject<AuthState>(new AuthState());
+
   private url: string = environment.apiUrl;
 
   constructor(private http: HttpClient) {
   }
 
-  login(): Observable<string> {
-    if (environment.dummyData) {
-      return of('Dummy username');
-    } else {
-      return new Observable(subscriber => {
-        this.http.get<boolean>(this.url + 'isLoggedIn').subscribe({
-          next: (isLoggedIn) => {
-            if (isLoggedIn) {
-              this.getUsername().subscribe(
-                username => subscriber.next(username)
-              );
-            } else {
-              this.http.get(this.url + 'login', {responseType: 'text'}).subscribe({
-                next: (spotifyLoginUrl) => {
-                  if (this.isSpotifyLoginURL(spotifyLoginUrl)) {
-                    window.location.replace(spotifyLoginUrl);
-                    subscriber.error(new Error('Please follow the spotify instructions'));
-                  } else {
-                    this.getUsername().subscribe(
-                      username => subscriber.next(username)
-                    );
-                  }
-                },
-                error: (error) => subscriber.error(error)
-              });
-            }
-          },
-          error: (error) => subscriber.error(error)
+  loadSession(): Observable<boolean> {
+    return new Observable<boolean>(subscriber => {
+      try {
+        this.http.get<AuthSession>(this.url + 'session').subscribe(session => {
+          this.state$.next(new AuthState(session));
+          subscriber.next(session.authenticated);
         });
-      });
-    }
+      } catch (e: any) {
+        this.state$.next(new AuthState(e));
+        subscriber.next(false);
+      }
+    });
   }
 
-  isLoggedIn(): Observable<boolean> {
-    return this.http.get<boolean>(this.url + 'isLoggedIn');
+  loginByRedirect(): Observable<string> {
+    return new Observable(subscriber => {
+      this.http.get(this.url + 'login-url', {responseType: 'text'}).subscribe(url => {
+        subscriber.next(url);
+      })
+    })
+  }
+
+  isLoggedIn(): boolean {
+    return this.state$.value.session.authenticated;
   }
 
   isSetupComplete(): Observable<boolean> {
@@ -57,11 +60,4 @@ export class LoginManagerService {
     return this.http.put(this.url + 'completeSetup', null);
   }
 
-  private getUsername(): Observable<any> {
-    return this.http.get(this.url + 'get-username', {responseType: 'text'});
-  }
-
-  private isSpotifyLoginURL(url: string): boolean {
-    return url != null && url.length != 0 && url != "LOGGED_IN";
-  }
 }

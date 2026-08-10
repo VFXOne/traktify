@@ -67,11 +67,12 @@ export class GroupSettingsComponent implements OnInit {
     this.paginatedPlaylists = computed(() => {
       let index = 0, startIndex = this.pageIndex() * this.pageSize(), endIndex = startIndex + this.pageSize();
 
-      return this.playlists().filter(() => {
-        index++;
-        return (index > startIndex && index <= endIndex);
-      })
-        .filter(p => p.name.toLowerCase().includes(this.searchString().toLowerCase()));
+      return this.playlists()
+        .filter(p => p.name.toLowerCase().includes(this.searchString().toLowerCase()))
+        .filter(() => {
+          index++;
+          return (index > startIndex && index <= endIndex);
+        });
     });
 
   }

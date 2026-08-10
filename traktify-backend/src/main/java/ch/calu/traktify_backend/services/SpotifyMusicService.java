@@ -1,12 +1,15 @@
 package ch.calu.traktify_backend.services;
 
-import ch.calu.traktify_backend.models.AudioInfo;
-import ch.calu.traktify_backend.models.Playlist;
-import ch.calu.traktify_backend.models.Song;
+import ch.calu.traktify_backend.models.SpotifyPlaylist;
+import ch.calu.traktify_backend.models.db.AudioInfo;
+import ch.calu.traktify_backend.models.db.Playlist;
+import ch.calu.traktify_backend.models.db.Song;
 import ch.calu.traktify_backend.services.utils.PagingRequestHelper;
 import ch.calu.traktify_backend.services.utils.RetryRequestHelper;
+import org.apache.hc.core5.http.ParseException;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.enums.Modality;
+import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.exceptions.detailed.TooManyRequestsException;
 import se.michaelthelin.spotify.exceptions.detailed.UnauthorizedException;
 import se.michaelthelin.spotify.model_objects.IPlaylistItem;
@@ -15,6 +18,7 @@ import se.michaelthelin.spotify.requests.data.tracks.GetAudioFeaturesForSeveralT
 import se.michaelthelin.spotify.requests.data.tracks.GetAudioFeaturesForTrackRequest;
 import se.michaelthelin.spotify.requests.data.users_profile.GetCurrentUsersProfileRequest;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -30,29 +34,60 @@ public class SpotifyMusicService {
         this.spotifyApiService = spotifyApiService;
     }
 
+    /**
+     * Retourne les playlists sauvegardées dans le profil Spotify de l'utilisateur, mais sans la liste des chansons
+     * @return Une liste de playlists
+     */
+    public List<SpotifyPlaylist> getSpotifyPlaylists() {
+        List<SpotifyPlaylist> playlistList = new ArrayList<>();
 
-    public List<Playlist> getSpotifyPlaylists() {
-        List<Playlist> playlistList = new ArrayList<>();
-
-        List<PlaylistSimplified> list = PagingRequestHelper.getAllElements((offset) -> spotifyApiService.getApi().getListOfCurrentUsersPlaylists().offset(offset).build());
+        List<PlaylistSimplified> list;
+        try {
+            list = PagingRequestHelper.getAllElements((offset) -> spotifyApiService.getApi().getListOfCurrentUsersPlaylists().offset(offset).build());
+        } catch (SpotifyWebApiException e) {
+          throw new RuntimeException("Error when fetching Spotify playlists", e);
+        }
 
         for (final PlaylistSimplified spotifyPlaylist : list) {
-            if (spotifyPlaylist.getOwner().getId().equals(userID)) {
-                Playlist playlist = new Playlist();
-                playlist.setSpotifyID(spotifyPlaylist.getId());
-                playlist.setName(spotifyPlaylist.getName());
+            SpotifyPlaylist playlist = new SpotifyPlaylist(
+                    spotifyPlaylist.getName(),
+                    spotifyPlaylist.getId(),
+                    spotifyPlaylist.getTracks().getTotal()
+            );
 
-                playlistList.add(playlist);
-            }
+            playlistList.add(playlist);
         }
 
         return playlistList;
     }
 
+    public Playlist getPlaylistInfo(String spotifyPlaylistId) {
+        try {
+            se.michaelthelin.spotify.model_objects.specification.Playlist spotifyPlaylist = spotifyApiService.getApi().getPlaylist(spotifyPlaylistId).build().execute();
+
+            Playlist playlist = new Playlist();
+            playlist.setName(spotifyPlaylist.getName());
+            playlist.setSpotifyID(spotifyPlaylist.getId());
+
+            return playlist;
+        }
+        catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
+
     public List<Song> getSongsFromSpotifyPlaylist(String spotifyPlaylistID) {
         List<Song> songList = new ArrayList<>();
 
-        List<PlaylistTrack> allTracks = PagingRequestHelper.getAllElements((offset) -> spotifyApiService.getApi().getPlaylistsItems(spotifyPlaylistID).offset(offset).build());
+        List<PlaylistTrack> allTracks;
+        try {
+            allTracks = PagingRequestHelper.getAllElements((offset) -> spotifyApiService.getApi().getPlaylistsItems(spotifyPlaylistID).offset(offset).build());
+        }
+        catch (SpotifyWebApiException e) {
+            throw new RuntimeException("Error when fetching songs from Spotify playlist " + spotifyPlaylistID, e);
+        }
+
         for (PlaylistTrack playlistTrack : allTracks) {
             IPlaylistItem item = playlistTrack.getTrack();
 
